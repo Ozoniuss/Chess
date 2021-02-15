@@ -11,6 +11,9 @@ class ChessTable:
         # stores the list of moves, convention:
         self.__list_of_moves = []
 
+    def get_table(self):
+        return self.__table
+
     def __str__(self):
         out = ''
         for y in range(8, 0, -1):
@@ -57,7 +60,6 @@ class ChessTable:
     def play_game(self):
         pass
 
-
-a = ChessTable()
-a.populate_chess_table()
-print(a)
+a = {1:'2', 2:'3'}
+for p in a:
+    print(a[p])
