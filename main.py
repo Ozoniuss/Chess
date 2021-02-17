@@ -13,41 +13,20 @@ class GUI:
                          'available position': 'gray71'
                         }
         self.__square_dict = {}
-        self.__pieces_dict = {}
         self.__canvas = Canvas(self.__frame, width=700, height=700, highlightthickness=0)
         self.__changes = []
-
-    # def convert_board_to_interface(self):
-    #     self.__table.populate_chess_table()
-    #     for row in range(8,0,-1):
-    #         for column in range(1, 9):
-    #             square = Button(self.__frame, width=10, height=5)
-    #             canvas = Canvas(square, width=80, height=80, highlightthickness=0, relief='ridge')
-    #             if (row + column)%2 == 0:
-    #                 square.config(bg=self.__colors['board1'])
-    #                 canvas.config(bg=self.__colors['board1'])
-    #             else:
-    #                 square.config(bg=self.__colors['board2'])
-    #                 canvas.config(bg=self.__colors['board2'])
-    #             if column == 1:
-    #                 canvas.create_text(1,1, text=str(row), anchor=NW)
-    #             if row == 1:
-    #                 canvas.create_text(80,80, text=chr(ord('A')+column-1), anchor = SE)
-    #
-    #             square.grid(row=9-row, column=column)
-    #             canvas.grid(row=9-row, column=column)
-    #             canvas.bind('<B1-Motion>', self.click_handler)
-    #             self.add_piece(canvas, row, column)
-    #
-    #             self.__canvas_dict[(9-row, column)] = canvas
-    #             self.__button_dict[(9 - row, column)] = square
+        # used for move function
+        self.__piece_x = None
+        self.__piece_y = None
+        self.__piece_drawing = None
+        self.__piece_coordinates = None
 
     def convert_board_to_interface(self):
         self.__table.populate_chess_table()
         for x in range(1,9):
             for y in range(8,0,-1):
                 square = self.__canvas.create_rectangle((x-1)*80, (9-y-1)*80, x*80, (9-y)*80)
-                self.__square_dict[(x,y)] = square
+                self.__square_dict[(x,y)] = [square, None]
                 if(x+y)%2 == 0:
                     self.__canvas.itemconfig(square, fill = self.__colors['board1'])
                 else:
@@ -59,34 +38,36 @@ class GUI:
                     self.__canvas.create_text(x*80 - 10, (9-y)*80 - 10, text=chr(ord('A')+x-1))
         self.__canvas.pack()
         self.__canvas.bind('<Button-1>', self.click_handler)
+        self.__canvas.bind('<B1-Motion>', self.move)
+        self.__canvas.bind('<ButtonRelease-1>', self.check_position)
 
     def click_handler(self, event):
         x = event.x//80 + 1
         y = 8 - event.y//80
+        self.__piece_x = event.x
+        self.__piece_y = event.y
+        self.__piece_drawing = self.__square_dict[(x, y)][1]
         if x not in range(1,9) or y not in range(1,9):
             pass
         else:
             self.undo_click()
-            square = self.__square_dict[(x,y)]
+            square = self.__square_dict[(x,y)][0]
             self.__canvas.itemconfig(square, fill = self.__colors['when clicked'])
             self.__changes.append([square, x, y])
             piece = self.__table.get_piece(x, y)
+            self.__piece_coordinates = [x,y]
             available_positions = piece.get_available_moves(self.__table, x, y)
             for position in available_positions:
-                square = self.__square_dict[(position[0], position[1])]
+                square = self.__square_dict[(position[0], position[1])][0]
                 self.__canvas.itemconfig(square, fill=self.__colors['available position'])
                 self.__changes.append([square, position[0], position[1]])
 
     def add_piece(self, canvas, x, y):
         piece = self.__table.get_piece(x, y)
-        self.__pieces_dict[(x,y)] = None
         if str(piece) != '.':
-            piece = canvas.create_oval((x-1)*80 + 20, (9-y-1)*80 + 20, x*80-20, (9-y)*80-20)
-            self.__pieces_dict[(x,y)] = piece
-            if y in (7,8):
-                canvas.itemconfig(piece, fill = 'black')
-            elif y in (1,2):
-                canvas.itemconfig(piece, fill = 'white')
+            piece_drawing = canvas.create_oval((x-1)*80 + 20, (9-y-1)*80 + 20, x*80-20, (9-y)*80-20)
+            self.__square_dict[(x,y)][1] = piece_drawing
+            canvas.itemconfig(piece_drawing, fill = piece.get_piece_info()[0])
 
     def undo_click(self):
         for element in self.__changes:
@@ -98,14 +79,29 @@ class GUI:
             else:
                 self.__canvas.itemconfig(square, fill=self.__colors['board2'])
 
-    # def move(self, event):
-    #     x, y = event.x, event.y
-    #     piece = self.
-    #     print('{}, {}'.format(x, y))
-    #     self.__canvas.move(piece, x - x_img, y - y_img)
-    #     x_img = x
-    #     y_img = y
-    #     canvas.update()
+    def move(self, event):
+        x, y = event.x, event.y
+        if self.__piece_drawing is not None:
+            self.__canvas.move(self.__piece_drawing, x - self.__piece_x, y - self.__piece_y)
+            self.__piece_x = x
+            self.__piece_y = y
+            self.__canvas.lift(self.__piece_drawing)
+            self.__canvas.update()
+
+    def check_position(self, event):
+        x = event.x // 80 + 1
+        y = 8 - event.y // 80
+        square = self.__square_dict[(x,y)][0]
+        # piece_drawing = self.__square_dict[(x,y)][1]
+        color = self.__canvas.itemcget(square, 'fill')
+        if color == self.__colors['available position']:
+            self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+            self.__square_dict[(x,y)][1] = self.__piece_drawing
+            print(str(self.__table))
+        else:
+            x = self.__piece_coordinates[0]
+            y = self.__piece_coordinates[1]
+        self.__canvas.coords(self.__piece_drawing, (x - 1) * 80 + 20, (9 - y - 1) * 80 + 20, x * 80 - 20, (9 - y) * 80 - 20)
 
 
 table = ChessTable()
