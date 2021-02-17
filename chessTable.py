@@ -10,6 +10,8 @@ class ChessTable:
 
         # stores the list of moves, convention:
         self.__list_of_moves = []
+        self.__white_king_pos = None
+        self.__black_king_pos = None
 
     def get_table(self):
         return self.__table
@@ -30,32 +32,51 @@ class ChessTable:
             return NotOnBoard()
         return self.__table[(x, y)]
 
-    def populate_chess_table(self):
+    # move a piece at a certain position
 
+    def move_piece(self, x, y, new_x, new_y):
+        if self.get_piece(x, y).get_piece_info()[0] == 'white' or self.get_piece(x, y).get_piece_info()[0] == 'black':
+
+            # needs to be a valid move
+            if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):
+                raise Exception("Invalid move!")
+
+            # make the move, also eliminates opponent piece if needed
+            self.__table[(new_x, new_y)] = self.__table[(x, y)]
+            self.__table[(x, y)] = BoardPiece()
+
+
+
+    def populate_chess_table(self):
+        self.__white_king_pos = (5, 1)
+        self.__black_king_pos = (5, 8)
         # pawns
         for x in range(1, 9):
-            self.__table[(x, 7)] = Pawn('red')
+            self.__table[(x, 7)] = Pawn('black')
 
         # for x in range(1, 9):
-        #     self.__table[(x, 2)] = Pawn('blue')
+        #     self.__table[(x, 2)] = Pawn('white')
 
         # other pieces
-        self.__table[(1, 1)] = Rock('blue')
-        self.__table[(8, 1)] = Rock('blue')
-        self.__table[(1, 8)] = Rock('red')
-        self.__table[(8, 8)] = Rock('red')
-        self.__table[(2, 1)] = Knight('blue')
-        self.__table[(7, 1)] = Knight('blue')
-        self.__table[(2, 8)] = Knight('red')
-        self.__table[(7, 8)] = Knight('red')
-        self.__table[(3, 1)] = Bishop('blue')
-        self.__table[(6, 1)] = Bishop('blue')
-        self.__table[(3, 8)] = Bishop('red')
-        self.__table[(6, 8)] = Bishop('red')
-        self.__table[(4, 1)] = Queen('blue')
-        self.__table[(5, 1)] = King('blue')
-        self.__table[(4, 8)] = Queen('red')
-        self.__table[(5, 8)] = King('red')
+        self.__table[(5,3)] = Bishop('white')
+        self.__table[(4,6)] = Pawn('black')
+
+        self.__table[(1, 1)] = Rock('white')
+        self.__table[(8, 1)] = Rock('white')
+        self.__table[(1, 8)] = Rock('black')
+        self.__table[(8, 8)] = Rock('black')
+        self.__table[(2, 1)] = Knight('white')
+        self.__table[(7, 1)] = Knight('white')
+        self.__table[(2, 8)] = Knight('black')
+        self.__table[(7, 8)] = Knight('black')
+        self.__table[(3, 1)] = Bishop('white')
+        self.__table[(6, 1)] = Bishop('white')
+        self.__table[(3, 8)] = Bishop('black')
+        self.__table[(6, 8)] = Bishop('black')
+        self.__table[(4, 1)] = Queen('white')
+        self.__table[(5, 1)] = King('white')
+        self.__table[(4, 8)] = Queen('black')
+        self.__table[(5, 8)] = King('black')
 
     def play_game(self):
         pass
@@ -63,3 +84,8 @@ class ChessTable:
 table = ChessTable()
 table.populate_chess_table()
 print(table)
+
+d = {1: '2'}
+d[1] = '3'
+d[3] = '4'
+print(d.get(2))
