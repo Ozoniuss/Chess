@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boardPiece.py" beforeDir="false" afterPath="$PROJECT_DIR$/boardPiece.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chessTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/chessTable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,7 +51,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.chessTable">
+  <component name="RunManager" selected="Python.main">
     <configuration name="boardPiece" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Chess" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -119,9 +120,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.chessTable" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.boardPiece" />
+        <item itemvalue="Python.chessTable" />
       </list>
     </recent_temporary>
   </component>
@@ -138,8 +139,16 @@
       <updated>1613417671489</updated>
       <workItem from="1613417673058" duration="7559000" />
       <workItem from="1613568324996" duration="7762000" />
-      <workItem from="1613576716736" duration="4611000" />
+      <workItem from="1613576716736" duration="8404000" />
     </task>
+    <task id="LOCAL-00001" summary="mue">
+      <created>1613589353784</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1613589353784</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -155,6 +164,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="mue" />
+    <option name="LAST_COMMIT_MESSAGE" value="mue" />
   </component>
   <component name="WindowStateProjectService">
     <state width="441" height="696" key="GridCell.Tab.0.bottom" timestamp="1613576105576">
@@ -199,8 +212,8 @@
     <state x="586" y="326" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1613425067438" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Chess$boardPiece.coverage" NAME="boardPiece Coverage Results" MODIFIED="1613425346616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chess$main.coverage" NAME="main Coverage Results" MODIFIED="1613577691031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chess$chessTable.coverage" NAME="chessTable Coverage Results" MODIFIED="1613577879310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chess$boardPiece.coverage" NAME="boardPiece Coverage Results" MODIFIED="1613592636967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chess$main.coverage" NAME="main Coverage Results" MODIFIED="1613593066428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chess$chessTable.coverage" NAME="chessTable Coverage Results" MODIFIED="1613592329722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
