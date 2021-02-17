@@ -36,8 +36,8 @@ class ChessTable:
         for x in range(1, 9):
             self.__table[(x, 7)] = Pawn('red')
 
-        for x in range(1, 9):
-            self.__table[(x, 2)] = Pawn('blue')
+        # for x in range(1, 9):
+        #     self.__table[(x, 2)] = Pawn('blue')
 
         # other pieces
         self.__table[(1, 1)] = Rock('blue')
@@ -60,6 +60,6 @@ class ChessTable:
     def play_game(self):
         pass
 
-a = {1:'2', 2:'3'}
-for p in a:
-    print(a[p])
+table = ChessTable()
+table.populate_chess_table()
+print(table)

@@ -78,9 +78,10 @@ class Pawn(BoardPiece):
                 available_moves.append((x + 1, y - 1))
 
         # still need to do the en passant
+        return available_moves
 
     def __str__(self):
-        return colored('O', self.__color)
+        return 'O'
 
 
 class Bishop(BoardPiece):
@@ -186,9 +187,10 @@ class Bishop(BoardPiece):
                 # if it's invalid or of the same color neglect it
                 else:
                     break
+        return available_moves
 
     def __str__(self):
-        return colored('B', self.__color)
+        return 'B'
 
 
 class Knight(BoardPiece):
@@ -276,9 +278,10 @@ class Knight(BoardPiece):
             if (board.get_piece(x - 1, y - 2).get_piece_info()[0] == 'blue') or (
                     board.get_piece(x - 1, y - 2).get_piece_info()[0] is None):
                 available_moves.append((x - 1, y - 2))
+        return available_moves
 
     def __str__(self):
-        return colored('K', self.__color)
+        return 'K'
 
 
 class Rock(BoardPiece):
@@ -424,9 +427,10 @@ class Rock(BoardPiece):
                 # if it's invalid or of the same color neglect it
                 else:
                     break
+        return available_moves
 
     def __str__(self):
-        return colored('R', self.__color)
+        return 'R'
 
 
 class Queen(BoardPiece):
@@ -619,11 +623,10 @@ class Queen(BoardPiece):
                 # if it's invalid or of the same color neglect it
                 else:
                     break
-
-
+        return available_moves
 
     def __str__(self):
-        return colored('Q', self.__color)
+        return 'Q'
 
 
 class King(BoardPiece):
@@ -721,9 +724,10 @@ class King(BoardPiece):
                     board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
                 if not self.is_check(board, x - 1, y - 1):
                     available_moves.append((x - 1, y - 1))
+        return available_moves
 
     def __str__(self):
-        return colored('X', self.__color)
+        return 'X'
 
     def is_check(self, board, x, y):
 
