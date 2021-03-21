@@ -69,7 +69,6 @@ class Pawn(BoardPiece):
                 if y == 7 and board.get_piece(x, y - 2).get_piece_info()[0] is None:
                     available_moves.append((x, y - 2))
 
-
             # it can move on the side if there's a white piece
             # no need to check if valid here
             if board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white':
@@ -78,8 +77,32 @@ class Pawn(BoardPiece):
                 available_moves.append((x + 1, y - 1))
 
         # still need to do the en passant
-        print(available_moves)
         return available_moves
+
+    def get_attacking_spots(self, board, x, y):
+
+        attacking_spots = []
+
+        if self.__color == 'white':
+            # it attacks the square if it's valid and empty or an opposite color piece
+            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or \
+                    (board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y + 1))
+            if board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black' or \
+                    (board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y + 1))
+
+
+        elif self.__color == 'black':
+            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or \
+                    (board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y - 1))
+            if board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white' or \
+                    (board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y - 1))
+
+        print(attacking_spots)
+        return attacking_spots
 
     def __str__(self):
         return 'O'
@@ -192,6 +215,9 @@ class Bishop(BoardPiece):
                     break
         return available_moves
 
+    def get_attacking_spots(self, board, x, y):
+        return self.get_available_moves(board, x, y)
+
     def __str__(self):
         return 'B'
 
@@ -283,6 +309,9 @@ class Knight(BoardPiece):
                     board.get_piece(x - 1, y - 2).get_piece_info()[0] is None):
                 available_moves.append((x - 1, y - 2))
         return available_moves
+
+    def get_attacking_spots(self, board, x, y):
+        return self.get_available_moves(board, x, y)
 
     def __str__(self):
         return 'K'
@@ -434,6 +463,9 @@ class Rock(BoardPiece):
                 else:
                     break
         return available_moves
+
+    def get_attacking_spots(self, board, x, y):
+        return self.get_available_moves(board, x, y)
 
     def __str__(self):
         return 'R'
@@ -633,6 +665,9 @@ class Queen(BoardPiece):
                     break
         return available_moves
 
+    def get_attacking_spots(self, board, x, y):
+        return self.get_available_moves(board, x, y)
+
     def __str__(self):
         return 'Q'
 
@@ -654,99 +689,283 @@ class King(BoardPiece):
 
         # for the moment we remove the king to avoid glitches, like the old position of the king
         # being in the path of an attack
-        # board.get_table[(x, y)] = BoardPiece()
+        board.get_table()[(x, y)] = BoardPiece()
+        print('a')
+        print(board)
+
+        # now, we also need to place the king in the actual position that it goes
+        # if the king takes a piece, and then is attacked, we don't want to have the other color
+        # piece still there to block the attack
+        # we'll clear these positions after the computations are made.
 
         if self.__color == 'white':
 
             if (board.get_piece(x, y + 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x, y + 1).get_piece_info()[0] is None):
 
+                # move the king
+                previous_piece = board.get_piece(x, y + 1)
+                board.get_table()[(x, y + 1)] = King('white')
+
                 if not self.is_check(board, x, y + 1):
                     available_moves.append((x, y + 1))
+
+                # place the piece back
+                board.get_table()[(x, y + 1)] = previous_piece
 
             if (board.get_piece(x, y - 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x, y - 1).get_piece_info()[0] is None):
+
+                # move the king
+                previous_piece = board.get_piece(x, y - 1)
+                board.get_table()[(x, y - 1)] = King('white')
+
+
                 if not self.is_check(board, x, y - 1):
                     available_moves.append((x, y - 1))
+
+                # place the piece back
+                board.get_table()[(x, y - 1)] = previous_piece
 
             if (board.get_piece(x - 1, y).get_piece_info()[0] == 'black') or (
                     board.get_piece(x - 1, y).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y)
+                board.get_table()[(x - 1, y)] = King('white')
+
                 if not self.is_check(board, x - 1, y):
                     available_moves.append((x - 1, y))
+
+                board.get_table()[(x - 1, y)] = previous_piece
 
             if (board.get_piece(x + 1, y).get_piece_info()[0] == 'black') or (
                     board.get_piece(x + 1, y).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y)
+                board.get_table()[(x + 1, y)] = King('white')
+
                 if not self.is_check(board, x + 1, y):
                     available_moves.append((x + 1, y))
+
+                board.get_table()[(x + 1, y)] = previous_piece
 
             if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y + 1)
+                board.get_table()[(x + 1, y + 1)] = King('white')
+
                 if not self.is_check(board, x + 1, y + 1):
                     available_moves.append((x + 1, y + 1))
+
+                board.get_table()[(x + 1, y + 1)] = previous_piece
 
             if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y - 1)
+                board.get_table()[(x + 1, y - 1)] = King('white')
+
                 if not self.is_check(board, x + 1, y - 1):
                     available_moves.append((x + 1, y - 1))
+
+                board.get_table()[(x + 1, y - 1)] = previous_piece
 
             if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y + 1)
+                board.get_table()[(x - 1, y + 1)] = King('white')
+
                 if not self.is_check(board, x - 1, y + 1):
                     available_moves.append((x - 1, y + 1))
+
+                board.get_table()[(x - 1, y + 1)] = previous_piece
 
             if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'black') or (
                     board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y - 1)
+                board.get_table()[(x - 1, y - 1)] = King('white')
+
                 if not self.is_check(board, x - 1, y - 1):
                     available_moves.append((x - 1, y - 1))
 
-            board.get_table[(x, y)] = King('white') # place the king back
+                board.get_table()[(x - 1, y - 1)] = previous_piece
+
+            board.get_table()[(x, y)] = King('white')  # place the king back
 
         if self.__color == 'black':
 
-
             if (board.get_piece(x, y + 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x, y + 1).get_piece_info()[0] is None):
+
+                # move the king
+                previous_piece = board.get_piece(x, y + 1)
+                board.get_table()[(x, y + 1)] = King('black')
+
                 if not self.is_check(board, x, y + 1):
                     available_moves.append((x, y + 1))
 
+                # place the piece back
+                board.get_table()[(x, y + 1)] = previous_piece
+
             if (board.get_piece(x, y - 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x, y - 1).get_piece_info()[0] is None):
+
+                # move the king
+                previous_piece = board.get_piece(x, y - 1)
+                board.get_table()[(x, y - 1)] = King('black')
+
                 if not self.is_check(board, x, y - 1):
                     available_moves.append((x, y - 1))
 
+                # place the piece back
+                board.get_table()[(x, y - 1)] = previous_piece
+
             if (board.get_piece(x - 1, y).get_piece_info()[0] == 'white') or (
                     board.get_piece(x - 1, y).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y)
+                board.get_table()[(x - 1, y)] = King('black')
+
                 if not self.is_check(board, x - 1, y):
                     available_moves.append((x - 1, y))
 
+                board.get_table()[(x - 1, y)] = previous_piece
+
             if (board.get_piece(x + 1, y).get_piece_info()[0] == 'white') or (
                     board.get_piece(x + 1, y).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y)
+                board.get_table()[(x + 1, y)] = King('black')
+
                 if not self.is_check(board, x + 1, y):
                     available_moves.append((x + 1, y))
 
+                board.get_table()[(x + 1, y)] = previous_piece
+
             if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y + 1)
+                board.get_table()[(x + 1, y + 1)] = King('black')
+
                 if not self.is_check(board, x + 1, y + 1):
                     available_moves.append((x + 1, y + 1))
 
+                board.get_table()[(x + 1, y + 1)] = previous_piece
+
             if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x + 1, y - 1)
+                board.get_table()[(x + 1, y - 1)] = King('black')
+
                 if not self.is_check(board, x + 1, y - 1):
                     available_moves.append((x + 1, y - 1))
 
+                board.get_table()[(x + 1, y - 1)] = previous_piece
+
             if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y + 1)
+                board.get_table()[(x - 1, y + 1)] = King('black')
+
                 if not self.is_check(board, x - 1, y + 1):
                     available_moves.append((x - 1, y + 1))
 
+                board.get_table()[(x - 1, y + 1)] = previous_piece
+
             if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or (
                     board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
+
+                previous_piece = board.get_piece(x - 1, y - 1)
+                board.get_table()[(x - 1, y - 1)] = King('black')
+
                 if not self.is_check(board, x - 1, y - 1):
                     available_moves.append((x - 1, y - 1))
 
-            board.get_table[(x, y)] = King('black')  # place the king back
+                board.get_table()[(x - 1, y - 1)] = previous_piece
+
+            board.get_table()[(x, y)] = King('black')  # place the king back
 
         return available_moves
+
+    def get_attacking_spots(self, board, x, y):
+
+        attacking_spots = []
+
+        if self.__color == 'white':
+
+            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x, y + 1))
+
+            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x, y - 1))
+
+            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x - 1, y).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y))
+
+            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x + 1, y).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y))
+
+            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y + 1))
+
+            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y - 1))
+
+            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y + 1))
+
+            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'black') or (
+                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y - 1))
+
+        if self.__color == 'black':
+
+            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x, y + 1))
+
+            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x, y - 1))
+
+            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x - 1, y).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y))
+
+            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x + 1, y).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y))
+
+            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y + 1))
+
+            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x + 1, y - 1))
+
+            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y + 1))
+
+            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or (
+                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
+                attacking_spots.append((x - 1, y - 1))
+
+        return attacking_spots
 
     def __str__(self):
         return 'X'
@@ -761,7 +980,7 @@ class King(BoardPiece):
                 piece = board.get_table()[positions]
                 if piece.get_piece_info()[0] == 'black':
                     # get the positions the piece attacks
-                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])
+                    piece_moves = piece.get_attacking_spots(board, positions[0], positions[1])
                     if (x, y) in piece_moves:
                         return True
             return False
@@ -773,17 +992,14 @@ class King(BoardPiece):
                 piece = board.get_table()[positions]
                 if piece.get_piece_info()[0] == 'white':
                     # get the positions the piece attacks
-                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])
+                    piece_moves = piece.get_attacking_spots(board, positions[0], positions[1])
                     if (x, y) in piece_moves:
                         return True
             return False
 
-
-
-
     # def is_stalemate(self, board, x, y):
     #     # no available positions and no check
-    #     if (self.get_available_moves(board, x, y) == []) and (self.is_check(board, x, y) == False):
+    #     if (self.get_attacking_spots(board, x, y) == []) and (self.is_check(board, x, y) == False):
     #         return True
     #     return False
     #
@@ -791,4 +1007,3 @@ class King(BoardPiece):
     # def is_checkmate(self):
     #     pass
     #
-

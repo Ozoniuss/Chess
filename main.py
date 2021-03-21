@@ -1,6 +1,7 @@
 from tkinter import *
 from chessTable import ChessTable
 
+
 class GUI:
     def __init__(self, table, master):
         self.__table = table
@@ -109,4 +110,3 @@ root = Tk()
 interface = GUI(table, root)
 interface.convert_board_to_interface()
 root.mainloop()
-
