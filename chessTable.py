@@ -39,7 +39,7 @@ class ChessTable:
 
     # move a piece at position new_x, new_y
     def move_piece(self, x, y, new_x, new_y):
-        if self.get_piece(x, y).get_piece_info()[0] == 'white' or self.get_piece(x, y).get_piece_info()[0] == 'black':
+        if self.get_piece(x, y).get_piece_color_and_type()[0] == 'white' or self.get_piece(x, y).get_piece_color_and_type()[0] == 'black':
 
             # needs to be a valid move
             if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):

@@ -125,8 +125,8 @@ class GUI:
 
     def add_piece(self, canvas, x, y):
         piece = self.__table.get_piece(x, y)
-        color = piece.get_piece_info()[0]
-        type = piece.get_piece_info()[1]
+        color = piece.get_piece_color_and_type()[0]
+        type = piece.get_piece_color_and_type()[1]
         piece_drawing = None
         self.__square_dict[(x, y)][2] = color
         if color == 'white':
