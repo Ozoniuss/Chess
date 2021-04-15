@@ -210,8 +210,8 @@ class GUI:
 
     def add_piece(self, x, y):
         piece = self.__table.get_piece(x, y)
-        color = piece.get_piece_info()[0]
-        type = piece.get_piece_info()[1]
+        color = piece.get_piece_color_and_type()[0]
+        type = piece.get_piece_color_and_type()[1]
         self.__square_dict[(x, y)].set_colour(color)
         if color is not None and type is not None:
             img = Image.open(self.__images[(type, color)])
@@ -382,7 +382,7 @@ class GUI:
                 self.get_piece_out(x, y)
 
                 piece = self.__table.get_piece(self.__piece_coordinates[0], self.__piece_coordinates[1])
-                img = Image.open(self.__images[(piece.get_piece_info()[1], piece.get_piece_info()[0])])
+                img = Image.open(self.__images[(piece.get_piece_color_and_type()[1], piece.get_piece_color_and_type()[0])])
                 self.__photo_references.append(ImageTk.PhotoImage(img.resize((40, 50), Image.ANTIALIAS)))
 
                 cnv_x, cnv_y = self.choose_coordinates(x, y)
@@ -467,7 +467,7 @@ class GUI:
         threatened_piece_drawing = self.__square_dict[(x, y)].get_photo_image()
         if threatened_piece_drawing is not None:
             piece = self.__table.get_piece(x,y)
-            color, type = piece.get_piece_info()
+            color, type = piece.get_piece_color_and_type()
             # because we want to keep the pieces in order, we get a list of types of the pieces
             # that we move one position to the right
             number_pieces_moved, pixels = self.switch_pieces_one_pos(color, type)
