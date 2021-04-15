@@ -2,6 +2,8 @@ from tkinter import *
 from chessTable import ChessTable
 from PIL import ImageTk, Image
 from functools import partial
+from tkinter import ttk
+from tkinter import  colorchooser
 
 
 class Square:
@@ -42,7 +44,7 @@ class GUI:
         self.__frame.grid_propagate(False)
         root.grid_columnconfigure(0, weight=1)
         root.grid_rowconfigure(0, weight=1)
-        self.__colors = {'board1' : 'MistyRose3',
+        self.__colors = {'board1' : '#dcbfb4',
                          'board2' : 'steel blue',
                          'when clicked2': 'SteelBlue2',
                          'when clicked1': 'MistyRose2',
@@ -50,7 +52,8 @@ class GUI:
                          'frame' : 'gray20',
                          'button leave': 'gray27',
                          'button enter': 'gray36',
-                         'text': 'white'
+                         'text': 'white',
+                         'status': 'gray36'
                         }
         self.__images = {('pawn', 'black') : 'black_pawn.png',
                          ('pawn', 'white'): 'white_pawn.png',
@@ -65,6 +68,7 @@ class GUI:
                          ('queen', 'black'): 'black_queen.png',
                          ('queen', 'white'): 'white_queen.png'
                          }
+
         self.__status_bar_black ={'pawn' : [],
                                   'bishop': [],
                                   'knight': [],
@@ -134,19 +138,19 @@ class GUI:
         self.reset()
         self.__table = ChessTable()
         welcome_label = Label(self.__frame, text='\nWelcome to \nCHESS!\n', font=('MS Serif', 50),
-                              fg=self.__colors['available position'], bg=self.__colors['frame'])
+                              fg=self.__colors['text'], bg=self.__colors['frame'])
         welcome_label.grid(row=2, rowspan=4, column=2, sticky='sw')
 
         button_player = Button(self.__frame, text='Another player', height=4, width=30,
                                command=lambda: self.player(), bg=self.__colors['button leave'],
-                               activebackground=self.__colors['button enter'], fg='white', font=('MS Serif', 15))
+                               activebackground=self.__colors['button enter'], fg=self.__colors['text'], font=('MS Serif', 15))
         button_player.grid(row=7, column=2, pady=(0, 0), sticky='sw')
         button_player.bind("<Enter>", lambda event, button=button_player: self.on_enter(button))
         button_player.bind("<Leave>", lambda event, button=button_player: self.on_leave(button))
 
         button_computer = Button(self.__frame, text='Computer', height=4, width=30,
                                  command=lambda: self.computer(), bg=self.__colors['button leave'],
-                                 activebackground=self.__colors['button enter'], fg='white', font=('MS Serif', 15))
+                                 activebackground=self.__colors['button enter'], fg=self.__colors['text'], font=('MS Serif', 15))
         button_computer.grid(row=8, column=2, pady=(0, 0), sticky='sw')
         button_computer.bind("<Enter>", lambda event, button=button_computer: self.on_enter(button))
         button_computer.bind("<Leave>", lambda event, button=button_computer: self.on_leave(button))
@@ -228,9 +232,9 @@ class GUI:
             self.__square_dict[(x, y)].set_photo_image(piece_drawing)
 
     def create_status_bars(self):
-        self.__canvas_black = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__colors['button enter'])
+        self.__canvas_black = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__colors['status'])
         self.__canvas_black.create_text(55, 20, text="Black player", fill="Black",font=('MS Serif', 12))
-        self.__canvas_white = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__colors['button enter'])
+        self.__canvas_white = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__colors['status'])
         self.__canvas_white.create_text(55, 20, text="White player", fill="White", font=('MS Serif', 13))
         if self.__board_orientation == 'wd':
             self.__canvas_black.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
@@ -256,21 +260,21 @@ class GUI:
 
         button1 = Button(self.__frame, text='New game', height=1, width=7, command=self.run_game,
                                bg=self.__colors['button leave'], activebackground=self.__colors['button enter'],
-                               fg='white', font = ('MS Serif', 12))
+                               fg=self.__colors['text'], font = ('MS Serif', 12))
         button1.grid(row=33, column=3, padx = 20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
         button1.bind("<Enter>", lambda event, button = button1: self.on_enter(button))
         button1.bind("<Leave>", lambda event, button = button1: self.on_leave(button))
 
         button2 = Button(self.__frame, text='Reset', height=1, width=7, command=self.in_game_reset,
                                bg=self.__colors['button leave'], activebackground=self.__colors['button enter'],
-                               fg='white', font = ('MS Serif', 12))
+                               fg=self.__colors['text'], font = ('MS Serif', 12))
         button2.grid(row=33, column=4, padx = 20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
         button2.bind("<Enter>", lambda event, button = button2: self.on_enter(button))
         button2.bind("<Leave>", lambda event, button = button2: self.on_leave(button))
 
         button3 = Button(self.__frame, text='Exit', height=1, width=7, command=self.__frame.quit,
                                bg=self.__colors['button leave'], activebackground=self.__colors['button enter'],
-                               fg='white', font = ('MS Serif', 12))
+                               fg=self.__colors['text'], font = ('MS Serif', 12))
         button3.grid(row=33, column=5, padx=20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
         button3.bind("<Enter>", lambda event, button = button3: self.on_enter(button))
         button3.bind("<Leave>", lambda event, button = button3: self.on_leave(button))
@@ -280,7 +284,7 @@ class GUI:
 
         button4 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.reverse_board,
                                bg=self.__colors['frame'], activebackground=self.__colors['button enter'],
-                               fg='white', font = ('MS Serif', 12), borderwidth=0)
+                               fg=self.__colors['text'], font = ('MS Serif', 12), borderwidth=0)
         button4.grid(row=2, column=2, padx=10, pady=(11, 0), sticky=NW)
         button4.bind("<Enter>", lambda event, button = button4: self.on_leave(button))
         button4.bind("<Leave>", lambda event, button = button4: self.on_leave_standard(button))
@@ -290,7 +294,7 @@ class GUI:
 
         button5 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.popupmsg,
                          bg=self.__colors['frame'], activebackground=self.__colors['button enter'],
-                         fg='white', font = ('MS Serif', 12), borderwidth=0)
+                         fg=self.__colors['text'], font = ('MS Serif', 12), borderwidth=0)
         button5.grid(row=3, column=2, padx=10, pady=0, sticky=NW)
         button5.bind("<Enter>", lambda event, button = button5: self.on_leave(button))
         button5.bind("<Leave>", lambda event, button = button5: self.on_leave_standard(button))
@@ -328,7 +332,7 @@ class GUI:
             return
         if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') == self.__colors['available position']:
             # we press an available square <=> we want to actually make the move
-            pass # check_position will do the work
+            pass # unclick_handler will do the work
         else:
             # we are on a square with a piece in it
             # we color it
@@ -381,21 +385,10 @@ class GUI:
                 # check if a piece was taken out and if so, add it to the status bar
                 self.get_piece_out(x, y)
 
-                piece = self.__table.get_piece(self.__piece_coordinates[0], self.__piece_coordinates[1])
-                img = Image.open(self.__images[(piece.get_piece_color_and_type()[1], piece.get_piece_color_and_type()[0])])
-                self.__photo_references.append(ImageTk.PhotoImage(img.resize((40, 50), Image.ANTIALIAS)))
-
-                cnv_x, cnv_y = self.choose_coordinates(x, y)
-                piece_drawing = self.__canvas.create_image((cnv_x - 1) * self.__square_size + self.__square_size / 2,
-                                                           (8 - cnv_y) * self.__square_size + self.__square_size / 2,
-                                                           image=self.__photo_references[len(self.__photo_references)-1])
-
-                self.__canvas.delete(self.__piece_drawing)
-
                 self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
-                self.__square_dict[(x, y)].set_photo_image(piece_drawing)
-                self.__square_dict[(x, y)].set_colour(piece_color)
                 self.change_player()
+
+                self.create_canvas()
 
                 self.__piece_drawing = None
                 self.__square_dict[(self.__piece_coordinates[0], self.__piece_coordinates[1])].reset()
@@ -488,7 +481,6 @@ class GUI:
                 self.__black_score += 1
                 self.__black_pixels += pixels
 
-            self.__canvas.delete(threatened_piece_drawing)
 
 # Functions that handle the reversing of the board #
 
@@ -515,22 +507,57 @@ class GUI:
 
 # Functions that handle the settings #
 
-    def set_board_color(self, variable, *args):
-        self.__colors['board2'] = variable.get()
+    def dark_mode_colors(self):
+        self.__colors['frame'] = 'gray20'
+        self.__colors['button leave'] = 'gray27'
+        self.__colors['button enter'] = 'gray36'
+        self.__colors['text'] = 'white'
+        self.__colors['status'] = 'gray36'
 
-    def set_dark_mode(self, state, *args):
-        if state == "Off":
-            self.__colors['frame'] =  'powder blue'
+    def powder_mode_colors(self):
+        self.__colors['frame'] = '#d7b19f'
+        self.__colors['button leave'] = '#c9957c'
+        self.__colors['button enter'] = '#d7b19f'
+        self.__colors['text'] =  'black'
+        self.__colors['status'] = '#c9957c'
+
+    def set_board_color(self, variable):
+        if variable == 'Blue':
+            self.__colors['board2'] = 'steel blue'
+            self.__colors['when clicked2'] = 'SteelBlue2'
+        elif variable == "Green":
+            self.__colors['board2'] = '#3a7e51'
+            self.__colors['when clicked2'] = '#58c985'
+        elif variable == "Violet":
+            self.__colors['board2'] = "PaleVioletRed4"
+            self.__colors['when clicked2'] = '#c18687'
+        elif variable == "Red":
+            self.__colors['board2'] = "indian red"
+            self.__colors['when clicked2'] = '#ee9193'
+
+    def set_dark_mode(self, state):
+        if state == "Powder":
+            self.powder_mode_colors()
         else:
-            self.__colors['frame'] = 'gray20'
+            self.dark_mode_colors()
         self.__dark_mode = state
-
-
 
     def save_changes(self, root, *args):
         root.destroy()
         self.__frame.config(bg=self.__colors['frame'])
-        self.create_canvas()
+        self.convert_board_to_interface()
+        self.create_status_bars()
+
+    def create_combo(self, frame, options):
+        combo = ttk.Combobox(frame, value=options)
+        combo.current(0)
+        combo['state'] = 'readonly'
+
+        frame.option_add("*TCombobox*Listbox*Background", self.__colors['button leave'])
+        frame.option_add('*TCombobox*Listbox.selectBackground', self.__colors['button enter'])  # change highlight color
+        frame.option_add('*TCombobox*Listbox.selectForeground', self.__colors['text'])  # change text color
+
+        return combo
 
 
     def popupmsg(self):
@@ -540,30 +567,22 @@ class GUI:
         frame = Frame(new_root,  width=300, height=500, bg = self.__colors['frame'])
         frame.grid(row=0, column=0)
         frame.grid_propagate(False)
-        variable = StringVar(frame)
-        variable.set(self.__colors['board2'])
-        options = ["steel blue", "PaleVioletRed4", "sea green", "indian red"]
 
         color_label = Label(frame, text="Board color:", bg=self.__colors['frame'], fg=self.__colors['text'])
         color_label.grid(row=0, column=0, padx=10, pady=10)
 
-        dark_mode_label = Label(frame, text="Dark mode:", bg=self.__colors['frame'], fg=self.__colors['text'])
+        dark_mode_label = Label(frame, text="Theme mode:", bg=self.__colors['frame'], fg=self.__colors['text'])
         dark_mode_label.grid(row=1, column=0, padx=10, pady=10)
 
-        optionmenu = OptionMenu(frame, variable, *(options), command=partial(self.set_board_color, variable))
-        optionmenu.config(width= 20)
-        optionmenu.grid(row=0, column=1,  padx=10, pady=10)
-        optionmenu.config(bg=self.__colors['button leave'], fg=self.__colors['text'], activebackground=self.__colors['button enter'],
-                          activeforeground=self.__colors['text'], borderwidth=0, relief='flat')
+        options = ["Blue", "Green", "Violet", "Red"]
+        color_combo = self.create_combo(frame, options)
+        color_combo.bind('<<ComboboxSelected>>', lambda event: self.set_board_color(color_combo.get()))
+        color_combo.grid(row=0, column=1, padx=10, pady=10)
 
-        variable2 = StringVar(frame)
-        variable2.set(self.__dark_mode)
-        options2 = ['On', 'Off']
-        optionmenu2 = OptionMenu(frame, variable2, *(options2), command=partial(self.set_dark_mode, variable2))
-        optionmenu2.config(width= 20)
-        optionmenu2.grid(row=1, column=1,  padx=10, pady=10)
-        optionmenu2.config(bg=self.__colors['button leave'], fg=self.__colors['text'], activebackground=self.__colors['button enter'],
-                          activeforeground=self.__colors['text'], borderwidth=0, relief='flat')
+        options2 = ['Dark', 'Powder']
+        dark_mode_combo = self.create_combo(frame, options2)
+        dark_mode_combo.bind('<<ComboboxSelected>>', lambda event: self.set_dark_mode(dark_mode_combo.get()))
+        dark_mode_combo.grid(row=1, column=1, padx=10, pady=10)
 
         B1 = Button(frame, text="Okay", height=2, width=10, command=partial(self.save_changes, new_root),
                     bg=self.__colors['button leave'], fg=self.__colors['text'])
