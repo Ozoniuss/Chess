@@ -58,10 +58,6 @@ class ChessTable:
             self.__table[(x, 2)] = Pawn('white')
 
         # other pieces
-        self.__table[(5,4)] = Bishop('white')
-        self.__table[(4,4)] = Queen('white')
-        #self.__table[(4, 2)] = BoardPiece()
-
         self.__table[(1, 1)] = Rock('white')
         self.__table[(8, 1)] = Rock('white')
         self.__table[(1, 8)] = Rock('black')
@@ -77,7 +73,7 @@ class ChessTable:
         self.__table[(4, 1)] = Queen('white')
         self.__table[(5, 1)] = King('white')
         self.__table[(4, 8)] = Queen('black')
-        self.__table[(4, 5)] = King('black')
+        self.__table[(5, 8)] = King('black')
 
     def play_game(self):
         pass

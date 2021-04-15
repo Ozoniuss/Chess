@@ -1,0 +1,1168 @@
+Index: chessTable.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from boardPiece import *\r\n\r\n\r\nclass ChessTable:\r\n    def __init__(self):\r\n        self.__table = {}\r\n        for x in range(1, 9):\r\n            for y in range(1, 9):\r\n                self.__table[(x, y)] = BoardPiece()\r\n\r\n        # stores the list of moves, convention:\r\n        self.__list_of_moves = []\r\n        self.__white_king_pos = None\r\n        self.__black_king_pos = None\r\n\r\n    def get_table(self):\r\n        return self.__table\r\n\r\n    def __str__(self):\r\n        out = ''\r\n        for y in range(8, 0, -1):\r\n            out += str(y) + ' '\r\n            for x in range(1, 9):\r\n                out += str(self.__table[(x, y)]) + ' '\r\n            out += '\\n'\r\n        out += '  A B C D E F G H'\r\n        return out\r\n\r\n    # return a piece at a certain position\r\n    def get_piece(self, x, y):\r\n        if (x not in range(1, 9)) or (y not in range(1, 9)):\r\n            return NotOnBoard()\r\n        return self.__table[(x, y)]\r\n\r\n    # move a piece at a certain position\r\n\r\n    def move_piece(self, x, y, new_x, new_y):\r\n        if self.get_piece(x, y).get_piece_info()[0] == 'white' or self.get_piece(x, y).get_piece_info()[0] == 'black':\r\n\r\n            # needs to be a valid move\r\n            if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):\r\n                raise Exception(\"Invalid move!\")\r\n\r\n            # make the move, also eliminates opponent piece if needed\r\n            self.__table[(new_x, new_y)] = self.__table[(x, y)]\r\n            self.__table[(x, y)] = BoardPiece()\r\n\r\n\r\n\r\n    def populate_chess_table(self):\r\n        self.__white_king_pos = (5, 1)\r\n        self.__black_king_pos = (5, 8)\r\n        # pawns\r\n        for x in range(1, 9):\r\n            self.__table[(x, 7)] = Pawn('black')\r\n\r\n        for x in range(1, 9):\r\n            self.__table[(x, 2)] = Pawn('white')\r\n\r\n        # other pieces\r\n        self.__table[(1, 1)] = Rock('white')\r\n        self.__table[(8, 1)] = Rock('white')\r\n        self.__table[(1, 8)] = Rock('black')\r\n        self.__table[(8, 8)] = Rock('black')\r\n        self.__table[(2, 1)] = Knight('white')\r\n        self.__table[(7, 1)] = Knight('white')\r\n        self.__table[(2, 8)] = Knight('black')\r\n        self.__table[(7, 8)] = Knight('black')\r\n        self.__table[(3, 1)] = Bishop('white')\r\n        self.__table[(6, 1)] = Bishop('white')\r\n        self.__table[(3, 8)] = Bishop('black')\r\n        self.__table[(6, 8)] = Bishop('black')\r\n        self.__table[(4, 1)] = Queen('white')\r\n        self.__table[(5, 1)] = King('white')\r\n        self.__table[(4, 8)] = Queen('black')\r\n        self.__table[(5, 8)] = King('black')\r\n\r\n    def play_game(self):\r\n        pass\r\n\r\ntable = ChessTable()\r\ntable.populate_chess_table()\r\nprint(table)\r\n\r\nd = {1: '2'}\r\nd[1] = '3'\r\nd[3] = '4'\r\nprint(d.get(2))\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- chessTable.py	(revision 81d006c15268a8bfa3dcc82dd1017f54866d74e5)
++++ chessTable.py	(date 1613594171948)
+@@ -80,9 +80,10 @@
+ 
+ table = ChessTable()
+ table.populate_chess_table()
++print(len(table.get_table().keys()))
+ print(table)
+ 
+ d = {1: '2'}
+ d[1] = '3'
+ d[3] = '4'
+-print(d.get(2))
++print(d.get(2))
+\ No newline at end of file
+Index: boardPiece.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># black pieces\r\n#\r\n#\r\n# white pieces --> the x axis\r\n\r\nclass BoardPiece:\r\n    def __init__(self):\r\n        pass\r\n\r\n    def get_piece_info(self):\r\n        return None, None\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        return []\r\n\r\n    def __str__(self):\r\n        return '.'\r\n\r\n\r\nclass NotOnBoard(BoardPiece):\r\n    def __init__(self):\r\n        super().__init__()\r\n\r\n    def get_piece_info(self):\r\n        return 'invalid', 'invalid'\r\n\r\n    def __str__(self):\r\n        return '.'\r\n\r\n\r\nclass Pawn(BoardPiece):\r\n    # color('red' or 'white') is the color of the pawn\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'pawn'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n        available_moves = []\r\n\r\n        if self.__color == 'white':\r\n            # right in front\r\n            # if there's a piece ahead no moves (including beginning)\r\n            # no need to check if valid because we'll never have a pawn on the last row\r\n            if board.get_piece(x, y + 1).get_piece_info()[0] is None:\r\n                available_moves.append((x, y + 1))\r\n                # right at the beginning\r\n                if y == 2 and board.get_piece(x, y + 2).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y + 2))\r\n\r\n            # it can move on the side if there's a white piece\r\n            # no need to check if valid here\r\n            if board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black':\r\n                available_moves.append((x - 1, y + 1))\r\n            if board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black':\r\n                available_moves.append((x + 1, y + 1))\r\n\r\n        if self.__color == 'black':\r\n            # right in front\r\n            # if there's a piece ahead no moves (including beginning)\r\n            # no need to check if valid because we'll never have a pawn on the last row\r\n            if board.get_piece(x, y - 1).get_piece_info()[0] is None:\r\n                available_moves.append((x, y - 1))\r\n                # right at the beginning\r\n                if y == 7 and board.get_piece(x, y - 2).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y - 2))\r\n\r\n\r\n            # it can move on the side if there's a white piece\r\n            # no need to check if valid here\r\n            if board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white':\r\n                available_moves.append((x - 1, y - 1))\r\n            if board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white':\r\n                available_moves.append((x + 1, y - 1))\r\n\r\n        # still need to do the en passant\r\n        print(available_moves)\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'O'\r\n\r\n\r\nclass Bishop(BoardPiece):\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'bishop'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n\r\n        available_moves = []\r\n\r\n        if self.__color == 'white':\r\n\r\n            # treat each of the diagonal cases.\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x + i, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x - i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y + i))\r\n                elif board.get_piece(x - i, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y + i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y - i))\r\n                elif board.get_piece(x + i, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y - i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y - i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n        if self.__color == 'black':\r\n\r\n            # treat each of the diagonal cases.\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x + i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x - i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y + i))\r\n                elif board.get_piece(x - i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y + i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y - i))\r\n                elif board.get_piece(x + i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y - i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y - i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'B'\r\n\r\n\r\nclass Knight(BoardPiece):\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'knight'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n\r\n        available_moves = []\r\n\r\n        if self.__color == 'white':\r\n            # check all 8 possibilities, add if opposite color or empty\r\n\r\n            # two on the column\r\n            if (board.get_piece(x + 2, y + 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 2, y + 1).get_piece_info()[0] is None):\r\n                available_moves.append((x + 2, y + 1))\r\n\r\n            if (board.get_piece(x + 2, y - 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 2, y - 1).get_piece_info()[0] is None):\r\n                available_moves.append((x + 2, y - 1))\r\n\r\n            if (board.get_piece(x - 2, y + 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 2, y + 1).get_piece_info()[0] is None):\r\n                available_moves.append((x - 2, y + 1))\r\n\r\n            if (board.get_piece(x - 2, y - 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 2, y - 1).get_piece_info()[0] is None):\r\n                available_moves.append((x - 2, y - 1))\r\n\r\n            # two on the line\r\n            if (board.get_piece(x + 1, y + 2).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 1, y + 2).get_piece_info()[0] is None):\r\n                available_moves.append((x + 1, y + 2))\r\n\r\n            if (board.get_piece(x + 1, y - 2).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 1, y - 2).get_piece_info()[0] is None):\r\n                available_moves.append((x + 1, y - 2))\r\n\r\n            if (board.get_piece(x - 1, y + 2).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 1, y + 2).get_piece_info()[0] is None):\r\n                available_moves.append((x - 1, y + 2))\r\n\r\n            if (board.get_piece(x - 1, y - 2).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 1, y - 2).get_piece_info()[0] is None):\r\n                available_moves.append((x - 1, y - 2))\r\n\r\n        if self.__color == 'black':\r\n\r\n            # two on the column\r\n            if (board.get_piece(x + 2, y + 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 2, y + 1).get_piece_info()[0] is None):\r\n                available_moves.append((x + 2, y + 1))\r\n\r\n            if (board.get_piece(x + 2, y - 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 2, y - 1).get_piece_info()[0] is None):\r\n                available_moves.append((x + 2, y - 1))\r\n\r\n            if (board.get_piece(x - 2, y + 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 2, y + 1).get_piece_info()[0] is None):\r\n                available_moves.append((x - 2, y + 1))\r\n\r\n            if (board.get_piece(x - 2, y - 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 2, y - 1).get_piece_info()[0] is None):\r\n                available_moves.append((x - 2, y - 1))\r\n\r\n            # two on the line\r\n            if (board.get_piece(x + 1, y + 2).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 1, y + 2).get_piece_info()[0] is None):\r\n                available_moves.append((x + 1, y + 2))\r\n\r\n            if (board.get_piece(x + 1, y - 2).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 1, y - 2).get_piece_info()[0] is None):\r\n                available_moves.append((x + 1, y - 2))\r\n\r\n            if (board.get_piece(x - 1, y + 2).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 1, y + 2).get_piece_info()[0] is None):\r\n                available_moves.append((x - 1, y + 2))\r\n\r\n            if (board.get_piece(x - 1, y - 2).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 1, y - 2).get_piece_info()[0] is None):\r\n                available_moves.append((x - 1, y - 2))\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'K'\r\n\r\n\r\nclass Rock(BoardPiece):\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'rock'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n\r\n        available_moves = []\r\n\r\n        if self.__color == 'white':\r\n\r\n            # treat each of the possible lines\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added) and break\r\n                elif board.get_piece(x, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y - i))\r\n                elif board.get_piece(x, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y))\r\n                elif board.get_piece(x + i, y).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y))\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y))\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n        if self.__color == 'black':\r\n\r\n            # treat each of the possible lines\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added) and break\r\n                elif board.get_piece(x, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y - i))\r\n                elif board.get_piece(x, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y))\r\n                elif board.get_piece(x + i, y).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y))\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y))\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            # treat each of the diagonal cases.\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x + i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x - i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y + i))\r\n                elif board.get_piece(x - i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y + i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y - i))\r\n                elif board.get_piece(x + i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y - i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y - i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'R'\r\n\r\n\r\nclass Queen(BoardPiece):\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'queen'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n\r\n        # we'll combine what we did at the bishop and the rock\r\n\r\n        available_moves = []\r\n\r\n        # rock moves\r\n        if self.__color == 'white':\r\n\r\n            # treat each of the possible lines\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added) and break\r\n                elif board.get_piece(x, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y - i))\r\n                elif board.get_piece(x, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y))\r\n                elif board.get_piece(x + i, y).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y))\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y))\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            # bishop moves.\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x + i, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x - i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y + i))\r\n                elif board.get_piece(x - i, y + i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y + i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y - i))\r\n                elif board.get_piece(x + i, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x + i, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y - i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y - i).get_piece_info()[0] == 'black':\r\n                    available_moves.append((x - i, y - i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n        elif self.__color == 'black':\r\n\r\n            # rock moves\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added) and break\r\n                elif board.get_piece(x, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it then break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x, y - i))\r\n                elif board.get_piece(x, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y))\r\n                elif board.get_piece(x + i, y).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y))\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y))\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            # bishop moves\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y + i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x + i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y + i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                if board.get_piece(x - i, y + i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y + i))\r\n                elif board.get_piece(x - i, y + i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y + i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x + i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x + i, y - i))\r\n                elif board.get_piece(x + i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x + i, y - i))\r\n                    break\r\n                else:\r\n                    break\r\n\r\n            for i in range(1, 8):\r\n                # if it's empty clearly add it\r\n                if board.get_piece(x - i, y - i).get_piece_info()[0] is None:\r\n                    available_moves.append((x - i, y - i))\r\n                # if it's of opposite color add it (doesn't matter if king is added)\r\n                elif board.get_piece(x - i, y - i).get_piece_info()[0] == 'white':\r\n                    available_moves.append((x - i, y - i))\r\n                    break\r\n                # if it's invalid or of the same color neglect it\r\n                else:\r\n                    break\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'Q'\r\n\r\n\r\nclass King(BoardPiece):\r\n    def __init__(self, color):\r\n        super().__init__()\r\n        self.__color = color\r\n\r\n    def get_piece_info(self):\r\n        return self.__color, 'king'\r\n\r\n    def get_available_moves(self, board, x, y):\r\n        # the board is passed as a parameter\r\n        # x, y represent the coordinates of the piece\r\n        # will not include positions where the king is in check\r\n\r\n        available_moves = []\r\n\r\n        # for the moment we remove the king to avoid glitches, like the old position of the king\r\n        # being in the path of an attack\r\n        # board.get_table[(x, y)] = BoardPiece()\r\n\r\n        if self.__color == 'white':\r\n\r\n            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x, y + 1).get_piece_info()[0] is None):\r\n\r\n                if not self.is_check(board, x, y + 1):\r\n                    available_moves.append((x, y + 1))\r\n\r\n            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x, y - 1):\r\n                    available_moves.append((x, y - 1))\r\n\r\n            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 1, y).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y):\r\n                    available_moves.append((x - 1, y))\r\n\r\n            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 1, y).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y):\r\n                    available_moves.append((x + 1, y))\r\n\r\n            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y + 1):\r\n                    available_moves.append((x + 1, y + 1))\r\n\r\n            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y - 1):\r\n                    available_moves.append((x + 1, y - 1))\r\n\r\n            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y + 1):\r\n                    available_moves.append((x - 1, y + 1))\r\n\r\n            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'black') or (\r\n                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y - 1):\r\n                    available_moves.append((x - 1, y - 1))\r\n\r\n            board.get_table[(x, y)] = King('white') # place the king back\r\n\r\n        if self.__color == 'black':\r\n\r\n\r\n            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x, y + 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x, y + 1):\r\n                    available_moves.append((x, y + 1))\r\n\r\n            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x, y - 1):\r\n                    available_moves.append((x, y - 1))\r\n\r\n            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 1, y).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y):\r\n                    available_moves.append((x - 1, y))\r\n\r\n            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 1, y).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y):\r\n                    available_moves.append((x + 1, y))\r\n\r\n            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y + 1):\r\n                    available_moves.append((x + 1, y + 1))\r\n\r\n            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x + 1, y - 1):\r\n                    available_moves.append((x + 1, y - 1))\r\n\r\n            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y + 1):\r\n                    available_moves.append((x - 1, y + 1))\r\n\r\n            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or (\r\n                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):\r\n                if not self.is_check(board, x - 1, y - 1):\r\n                    available_moves.append((x - 1, y - 1))\r\n\r\n            board.get_table[(x, y)] = King('black')  # place the king back\r\n\r\n        return available_moves\r\n\r\n    def __str__(self):\r\n        return 'X'\r\n\r\n    def is_check(self, board, x, y):\r\n        # the king is at position x, y. Returns true if the king is in check.\r\n\r\n        if self.__color == 'white':\r\n            for positions in board.get_table():\r\n                # get the color of the piece at each position\r\n                # we are only interested in opposite color pieces:\r\n                piece = board.get_table()[positions]\r\n                if piece.get_piece_info()[0] == 'black':\r\n                    # get the positions the piece attacks\r\n                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])\r\n                    if (x, y) in piece_moves:\r\n                        return True\r\n            return False\r\n\r\n        if self.__color == 'black':\r\n            for positions in board.get_table():\r\n                # get the color of the piece at each position\r\n                # we are only interested in opposite color pieces:\r\n                piece = board.get_table()[positions]\r\n                if piece.get_piece_info()[0] == 'white':\r\n                    # get the positions the piece attacks\r\n                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])\r\n                    if (x, y) in piece_moves:\r\n                        return True\r\n            return False\r\n\r\n\r\n\r\n\r\n    # def is_stalemate(self, board, x, y):\r\n    #     # no available positions and no check\r\n    #     if (self.get_available_moves(board, x, y) == []) and (self.is_check(board, x, y) == False):\r\n    #         return True\r\n    #     return False\r\n    #\r\n    # # for simplicity\r\n    # def is_checkmate(self):\r\n    #     pass\r\n    #\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- boardPiece.py	(revision 81d006c15268a8bfa3dcc82dd1017f54866d74e5)
++++ boardPiece.py	(date 1613593233495)
+@@ -69,7 +69,6 @@
+                 if y == 7 and board.get_piece(x, y - 2).get_piece_info()[0] is None:
+                     available_moves.append((x, y - 2))
+ 
+-
+             # it can move on the side if there's a white piece
+             # no need to check if valid here
+             if board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white':
+@@ -78,9 +77,33 @@
+                 available_moves.append((x + 1, y - 1))
+ 
+         # still need to do the en passant
+-        print(available_moves)
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++
++        attacking_spots = []
++
++        if self.__color == 'white':
++            # it attacks the square if it's valid and empty or an opposite color piece
++            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or \
++                    (board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y + 1))
++            if board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black' or \
++                    (board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y + 1))
++
++
++        elif self.__color == 'black':
++            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or \
++                    (board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y - 1))
++            if board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white' or \
++                    (board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y - 1))
++
++        print(attacking_spots)
++        return attacking_spots
++
+     def __str__(self):
+         return 'O'
+ 
+@@ -192,6 +215,9 @@
+                     break
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++        return self.get_available_moves(board, x, y)
++
+     def __str__(self):
+         return 'B'
+ 
+@@ -284,6 +310,9 @@
+                 available_moves.append((x - 1, y - 2))
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++        return self.get_available_moves(board, x, y)
++
+     def __str__(self):
+         return 'K'
+ 
+@@ -435,6 +464,9 @@
+                     break
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++        return self.get_available_moves(board, x, y)
++
+     def __str__(self):
+         return 'R'
+ 
+@@ -633,6 +665,9 @@
+                     break
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++        return self.get_available_moves(board, x, y)
++
+     def __str__(self):
+         return 'Q'
+ 
+@@ -654,100 +689,284 @@
+ 
+         # for the moment we remove the king to avoid glitches, like the old position of the king
+         # being in the path of an attack
+-        # board.get_table[(x, y)] = BoardPiece()
++        board.get_table()[(x, y)] = BoardPiece()
++        print('a')
++        print(board)
++
++        # now, we also need to place the king in the actual position that it goes
++        # if the king takes a piece, and then is attacked, we don't want to have the other color
++        # piece still there to block the attack
++        # we'll clear these positions after the computations are made.
+ 
+         if self.__color == 'white':
+ 
+             if (board.get_piece(x, y + 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x, y + 1).get_piece_info()[0] is None):
+ 
++                # move the king
++                previous_piece = board.get_piece(x, y + 1)
++                board.get_table()[(x, y + 1)] = King('white')
++
+                 if not self.is_check(board, x, y + 1):
+                     available_moves.append((x, y + 1))
+ 
++                # place the piece back
++                board.get_table()[(x, y + 1)] = previous_piece
++
+             if (board.get_piece(x, y - 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x, y - 1).get_piece_info()[0] is None):
++
++                # move the king
++                previous_piece = board.get_piece(x, y - 1)
++                board.get_table()[(x, y - 1)] = King('white')
++
++
+                 if not self.is_check(board, x, y - 1):
+                     available_moves.append((x, y - 1))
+ 
++                # place the piece back
++                board.get_table()[(x, y - 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x - 1, y).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y)
++                board.get_table()[(x - 1, y)] = King('white')
++
+                 if not self.is_check(board, x - 1, y):
+                     available_moves.append((x - 1, y))
+ 
++                board.get_table()[(x - 1, y)] = previous_piece
++
+             if (board.get_piece(x + 1, y).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x + 1, y).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y)
++                board.get_table()[(x + 1, y)] = King('white')
++
+                 if not self.is_check(board, x + 1, y):
+                     available_moves.append((x + 1, y))
+ 
++                board.get_table()[(x + 1, y)] = previous_piece
++
+             if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y + 1)
++                board.get_table()[(x + 1, y + 1)] = King('white')
++
+                 if not self.is_check(board, x + 1, y + 1):
+                     available_moves.append((x + 1, y + 1))
+ 
++                board.get_table()[(x + 1, y + 1)] = previous_piece
++
+             if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y - 1)
++                board.get_table()[(x + 1, y - 1)] = King('white')
++
+                 if not self.is_check(board, x + 1, y - 1):
+                     available_moves.append((x + 1, y - 1))
+ 
++                board.get_table()[(x + 1, y - 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y + 1)
++                board.get_table()[(x - 1, y + 1)] = King('white')
++
+                 if not self.is_check(board, x - 1, y + 1):
+                     available_moves.append((x - 1, y + 1))
+ 
++                board.get_table()[(x - 1, y + 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'black') or (
+                     board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y - 1)
++                board.get_table()[(x - 1, y - 1)] = King('white')
++
+                 if not self.is_check(board, x - 1, y - 1):
+                     available_moves.append((x - 1, y - 1))
+ 
+-            board.get_table[(x, y)] = King('white') # place the king back
++                board.get_table()[(x - 1, y - 1)] = previous_piece
++
++            board.get_table()[(x, y)] = King('white')  # place the king back
+ 
+         if self.__color == 'black':
+ 
+-
+             if (board.get_piece(x, y + 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x, y + 1).get_piece_info()[0] is None):
++
++                # move the king
++                previous_piece = board.get_piece(x, y + 1)
++                board.get_table()[(x, y + 1)] = King('black')
++
+                 if not self.is_check(board, x, y + 1):
+                     available_moves.append((x, y + 1))
+ 
++                # place the piece back
++                board.get_table()[(x, y + 1)] = previous_piece
++
+             if (board.get_piece(x, y - 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x, y - 1).get_piece_info()[0] is None):
++
++                # move the king
++                previous_piece = board.get_piece(x, y - 1)
++                board.get_table()[(x, y - 1)] = King('black')
++
+                 if not self.is_check(board, x, y - 1):
+                     available_moves.append((x, y - 1))
+ 
++                # place the piece back
++                board.get_table()[(x, y - 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x - 1, y).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y)
++                board.get_table()[(x - 1, y)] = King('black')
++
+                 if not self.is_check(board, x - 1, y):
+                     available_moves.append((x - 1, y))
+ 
++                board.get_table()[(x - 1, y)] = previous_piece
++
+             if (board.get_piece(x + 1, y).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x + 1, y).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y)
++                board.get_table()[(x + 1, y)] = King('black')
++
+                 if not self.is_check(board, x + 1, y):
+                     available_moves.append((x + 1, y))
+ 
++                board.get_table()[(x + 1, y)] = previous_piece
++
+             if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y + 1)
++                board.get_table()[(x + 1, y + 1)] = King('black')
++
+                 if not self.is_check(board, x + 1, y + 1):
+                     available_moves.append((x + 1, y + 1))
+ 
++                board.get_table()[(x + 1, y + 1)] = previous_piece
++
+             if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x + 1, y - 1)
++                board.get_table()[(x + 1, y - 1)] = King('black')
++
+                 if not self.is_check(board, x + 1, y - 1):
+                     available_moves.append((x + 1, y - 1))
+ 
++                board.get_table()[(x + 1, y - 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y + 1)
++                board.get_table()[(x - 1, y + 1)] = King('black')
++
+                 if not self.is_check(board, x - 1, y + 1):
+                     available_moves.append((x - 1, y + 1))
+ 
++                board.get_table()[(x - 1, y + 1)] = previous_piece
++
+             if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or (
+                     board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
++
++                previous_piece = board.get_piece(x - 1, y - 1)
++                board.get_table()[(x - 1, y - 1)] = King('black')
++
+                 if not self.is_check(board, x - 1, y - 1):
+                     available_moves.append((x - 1, y - 1))
+ 
+-            board.get_table[(x, y)] = King('black')  # place the king back
++                board.get_table()[(x - 1, y - 1)] = previous_piece
++
++            board.get_table()[(x, y)] = King('black')  # place the king back
+ 
+         return available_moves
+ 
++    def get_attacking_spots(self, board, x, y):
++
++        attacking_spots = []
++
++        if self.__color == 'white':
++
++            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x, y + 1))
++
++            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x, y - 1))
++
++            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x - 1, y).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y))
++
++            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x + 1, y).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y))
++
++            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y + 1))
++
++            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y - 1))
++
++            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y + 1))
++
++            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'black') or (
++                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y - 1))
++
++        if self.__color == 'black':
++
++            if (board.get_piece(x, y + 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x, y + 1))
++
++            if (board.get_piece(x, y - 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x, y - 1))
++
++            if (board.get_piece(x - 1, y).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x - 1, y).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y))
++
++            if (board.get_piece(x + 1, y).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x + 1, y).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y))
++
++            if (board.get_piece(x + 1, y + 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x + 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y + 1))
++
++            if (board.get_piece(x + 1, y - 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x + 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x + 1, y - 1))
++
++            if (board.get_piece(x - 1, y + 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x - 1, y + 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y + 1))
++
++            if (board.get_piece(x - 1, y - 1).get_piece_info()[0] == 'white') or (
++                    board.get_piece(x - 1, y - 1).get_piece_info()[0] is None):
++                attacking_spots.append((x - 1, y - 1))
++
++        return attacking_spots
++
+     def __str__(self):
+         return 'X'
+ 
+@@ -761,7 +980,7 @@
+                 piece = board.get_table()[positions]
+                 if piece.get_piece_info()[0] == 'black':
+                     # get the positions the piece attacks
+-                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])
++                    piece_moves = piece.get_attacking_spots(board, positions[0], positions[1])
+                     if (x, y) in piece_moves:
+                         return True
+             return False
+@@ -773,22 +992,18 @@
+                 piece = board.get_table()[positions]
+                 if piece.get_piece_info()[0] == 'white':
+                     # get the positions the piece attacks
+-                    piece_moves = piece.get_available_moves(board, positions[0], positions[1])
++                    piece_moves = piece.get_attacking_spots(board, positions[0], positions[1])
+                     if (x, y) in piece_moves:
+                         return True
+             return False
+ 
+-
+-
+-
+     # def is_stalemate(self, board, x, y):
+     #     # no available positions and no check
+-    #     if (self.get_available_moves(board, x, y) == []) and (self.is_check(board, x, y) == False):
++    #     if (self.get_attacking_spots(board, x, y) == []) and (self.is_check(board, x, y) == False):
+     #         return True
+     #     return False
+     #
+     # # for simplicity
+     # def is_checkmate(self):
+     #     pass
+-    #
+-
++    #
+\ No newline at end of file
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from tkinter import *\r\nfrom chessTable import ChessTable\r\n\r\nclass GUI:\r\n    def __init__(self, table, master):\r\n        self.__table = table\r\n        self.__frame = Frame(master,  width=870, height=750)\r\n        self.__frame.pack(expand=True)\r\n        self.__frame.grid_propagate(0)\r\n        self.__colors = {'board1' : 'mint cream',\r\n                         'board2' : 'DarkSlateGray4',\r\n                         'when clicked': 'SkyBlue3',\r\n                         'available position': 'gray71'\r\n                        }\r\n        self.__square_dict = {}\r\n        self.__canvas = Canvas(self.__frame, width=700, height=700, highlightthickness=0)\r\n        self.__changes = []\r\n        # used for move function\r\n        self.__piece_x = None\r\n        self.__piece_y = None\r\n        self.__piece_drawing = None\r\n        self.__piece_coordinates = None\r\n\r\n    def convert_board_to_interface(self):\r\n        self.__table.populate_chess_table()\r\n        for x in range(1,9):\r\n            for y in range(8,0,-1):\r\n                square = self.__canvas.create_rectangle((x-1)*80, (9-y-1)*80, x*80, (9-y)*80)\r\n                self.__square_dict[(x,y)] = [square, None]\r\n                if(x+y)%2 == 0:\r\n                    self.__canvas.itemconfig(square, fill = self.__colors['board1'])\r\n                else:\r\n                    self.__canvas.itemconfig(square, fill = self.__colors['board2'])\r\n                self.add_piece(self.__canvas, x, y)\r\n                if x == 1:\r\n                    self.__canvas.create_text((x-1)*80 + 10 ,(9-y-1)*80 + 10, text=str(y))\r\n                if y == 1:\r\n                    self.__canvas.create_text(x*80 - 10, (9-y)*80 - 10, text=chr(ord('A')+x-1))\r\n        self.__canvas.pack()\r\n        self.__canvas.bind('<Button-1>', self.click_handler)\r\n        self.__canvas.bind('<B1-Motion>', self.move)\r\n        self.__canvas.bind('<ButtonRelease-1>', self.check_position)\r\n\r\n    def click_handler(self, event):\r\n        x = event.x//80 + 1\r\n        y = 8 - event.y//80\r\n        self.__piece_x = event.x\r\n        self.__piece_y = event.y\r\n        self.__piece_drawing = self.__square_dict[(x, y)][1]\r\n        if x not in range(1,9) or y not in range(1,9):\r\n            pass\r\n        else:\r\n            self.undo_click()\r\n            square = self.__square_dict[(x,y)][0]\r\n            self.__canvas.itemconfig(square, fill = self.__colors['when clicked'])\r\n            self.__changes.append([square, x, y])\r\n            piece = self.__table.get_piece(x, y)\r\n            self.__piece_coordinates = [x,y]\r\n            available_positions = piece.get_available_moves(self.__table, x, y)\r\n            for position in available_positions:\r\n                square = self.__square_dict[(position[0], position[1])][0]\r\n                self.__canvas.itemconfig(square, fill=self.__colors['available position'])\r\n                self.__changes.append([square, position[0], position[1]])\r\n\r\n    def add_piece(self, canvas, x, y):\r\n        piece = self.__table.get_piece(x, y)\r\n        if str(piece) != '.':\r\n            piece_drawing = canvas.create_oval((x-1)*80 + 20, (9-y-1)*80 + 20, x*80-20, (9-y)*80-20)\r\n            self.__square_dict[(x,y)][1] = piece_drawing\r\n            canvas.itemconfig(piece_drawing, fill = piece.get_piece_info()[0])\r\n\r\n    def undo_click(self):\r\n        for element in self.__changes:\r\n            square = element[0]\r\n            x = element[1]\r\n            y = element[2]\r\n            if (x + y) % 2 == 0:\r\n                self.__canvas.itemconfig(square, fill=self.__colors['board1'])\r\n            else:\r\n                self.__canvas.itemconfig(square, fill=self.__colors['board2'])\r\n\r\n    def move(self, event):\r\n        x, y = event.x, event.y\r\n        if self.__piece_drawing is not None:\r\n            self.__canvas.move(self.__piece_drawing, x - self.__piece_x, y - self.__piece_y)\r\n            self.__piece_x = x\r\n            self.__piece_y = y\r\n            self.__canvas.lift(self.__piece_drawing)\r\n            self.__canvas.update()\r\n\r\n    def check_position(self, event):\r\n        x = event.x // 80 + 1\r\n        y = 8 - event.y // 80\r\n        square = self.__square_dict[(x,y)][0]\r\n        # piece_drawing = self.__square_dict[(x,y)][1]\r\n        color = self.__canvas.itemcget(square, 'fill')\r\n        if color == self.__colors['available position']:\r\n            self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)\r\n            self.__square_dict[(x,y)][1] = self.__piece_drawing\r\n            print(str(self.__table))\r\n        else:\r\n            x = self.__piece_coordinates[0]\r\n            y = self.__piece_coordinates[1]\r\n        self.__canvas.coords(self.__piece_drawing, (x - 1) * 80 + 20, (9 - y - 1) * 80 + 20, x * 80 - 20, (9 - y) * 80 - 20)\r\n\r\n\r\ntable = ChessTable()\r\nroot = Tk()\r\ninterface = GUI(table, root)\r\ninterface.convert_board_to_interface()\r\nroot.mainloop()\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- main.py	(revision 81d006c15268a8bfa3dcc82dd1017f54866d74e5)
++++ main.py	(date 1613912030354)
+@@ -1,84 +1,320 @@
+ from tkinter import *
+ from chessTable import ChessTable
++from PIL import ImageTk, Image
++
+ 
+ class GUI:
+     def __init__(self, table, master):
+         self.__table = table
+-        self.__frame = Frame(master,  width=870, height=750)
+-        self.__frame.pack(expand=True)
+-        self.__frame.grid_propagate(0)
+-        self.__colors = {'board1' : 'mint cream',
+-                         'board2' : 'DarkSlateGray4',
+-                         'when clicked': 'SkyBlue3',
+-                         'available position': 'gray71'
++        self.__frame = Frame(master,  width=2000, height=2000, bg = 'gray20')
++        root.state('zoomed')
++        self.__frame.grid(row=0, column=0, sticky='nesw')
++        root.grid_columnconfigure(0, weight=1)
++        root.grid_rowconfigure(0, weight=1)
++        self.__colors = {'board1' : 'MistyRose3',
++                         'board2' : 'steel blue',
++                         'when clicked2': 'SteelBlue2',
++                         'when clicked1': 'MistyRose2',
++                         'available position': 'AntiqueWhite1',
++                         'frame' : 'gray20'
+                         }
+-        self.__square_dict = {}
+-        self.__canvas = Canvas(self.__frame, width=700, height=700, highlightthickness=0)
++        self.__square_dict = {} # 0: square, 1: image, 2: color
+         self.__changes = []
+         # used for move function
+         self.__piece_x = None
+         self.__piece_y = None
+         self.__piece_drawing = None
+         self.__piece_coordinates = None
++        self.__current_player = 'white'
++        self.__previous_click = None
++
++    def run_game(self):
++        for widget in self.__frame.winfo_children():
++            widget.destroy()
++
++        welcome_label = Label(self.__frame, text='\nWelcome to \n CHESS!\n', font=('MS Serif',30), width=70,
++                              fg=self.__colors['available position'], bg=self.__colors['frame'])
++        welcome_label.grid(row=1, column=2, sticky = 'nw')
++
++        button_player = Button(self.__frame, text='Another player', height=7, width=50,
++                               command=lambda: self.convert_board_to_interface(), bg=self.__colors['board1'],
++                               activebackground=self.__colors['board1'], fg='black')
++        button_player.grid(row=2, column=2, sticky = 'sw')
++
++        button_player = Button(self.__frame, text='Computer', height=7, width=50,
++                               command=lambda: self.computer, bg=self.__colors['board1'],
++                               activebackground=self.__colors['board1'], fg='black')
++        button_player.grid(row=3, column=2, pady = (0,0), sticky = 'sw')
++
++        # canvas_for_image = Canvas(self.__frame, bg=self.__colors['frame'], height=641, width=641, borderwidth=0, highlightthickness=0)
++        # canvas_for_image.grid(row=2, rowspan=2, column=1, padx = 50, pady=50, sticky = S)
++        #
++        # image = Image.open('our-board.png')
++        # canvas_for_image.image = ImageTk.PhotoImage(image.resize((640, 640), Image.ANTIALIAS))
++        # canvas_for_image.create_image(0, 0, image=canvas_for_image.image, anchor='nw')
++
++        canvas = self.draw_board()
++        canvas.grid(row=1, rowspan=3, column=1, padx=50, pady=50, sticky=S)
++
++    def computer(self):
++        pass
+ 
+     def convert_board_to_interface(self):
++        for widget in self.__frame.winfo_children():
++            widget.destroy()
++
++        self.__table = ChessTable()
++        self.__square_dict = {}
++        self.__piece_drawing = None
++        self.__changes = []
++        self.__current_player = 'white'
++
++        self.__canvas = self.draw_board()
++        self.__canvas.grid(row=1, column=1, padx=50, pady=50, sticky=S)
++
++        self.__canvas.bind('<Button-1>', self.click_handler)
++        self.__canvas.bind('<B1-Motion>', self.move)
++        self.__canvas.bind('<ButtonRelease-1>', self.check_position)
++        self.__canvas.bind('<Motion>', self.motion)
++
++        button_player = Button(self.__frame, text='New game', height=1, width=7, command=self.run_game,
++                               bg=self.__colors['board1'], activebackground=self.__colors['board1'],
++                               fg='black')
++        button_player.grid(row=1, column=2, padx = 20, pady=50, ipadx=60, ipady=15, sticky=S)
++        button_player = Button(self.__frame, text='Reset', height=1, width=7, command=self.convert_board_to_interface,
++                               bg=self.__colors['board1'], activebackground=self.__colors['board1'],
++                               fg='black')
++        button_player.grid(row=1, column=3, padx = 20, pady=50, ipadx=60, ipady=15, sticky=S)
++        button_player = Button(self.__frame, text='Exit', height=1, width=7, command=self.__frame.quit,
++                               bg=self.__colors['board1'], activebackground=self.__colors['board1'],
++                               fg='black')
++        button_player.grid(row=1, column=4, padx=20, pady=50, ipadx=60, ipady=15, sticky=S)
++
++
++    def draw_board(self):
++        canvas = Canvas(self.__frame, width=641, height=641, highlightthickness=0, bg=self.__colors['board2'])
+         self.__table.populate_chess_table()
+-        for x in range(1,9):
+-            for y in range(8,0,-1):
+-                square = self.__canvas.create_rectangle((x-1)*80, (9-y-1)*80, x*80, (9-y)*80)
+-                self.__square_dict[(x,y)] = [square, None]
+-                if(x+y)%2 == 0:
+-                    self.__canvas.itemconfig(square, fill = self.__colors['board1'])
++        print(str(self.__table))
++        for x in range(1, 9):
++            for y in range(8, 0, -1):
++                square = canvas.create_rectangle((x - 1) * 80, (9 - y - 1) * 80, x * 80, (9 - y) * 80)
++                self.__square_dict[(x, y)] = [square, None, None]
++                if (x + y) % 2 == 0:
++                    canvas.itemconfig(square, fill=self.__colors['board1'])
+                 else:
+-                    self.__canvas.itemconfig(square, fill = self.__colors['board2'])
+-                self.add_piece(self.__canvas, x, y)
++                    canvas.itemconfig(square, fill=self.__colors['board2'])
++                self.add_piece(canvas, x, y)
+                 if x == 1:
+-                    self.__canvas.create_text((x-1)*80 + 10 ,(9-y-1)*80 + 10, text=str(y))
++                    canvas.create_text((x - 1) * 80 + 10, (9 - y - 1) * 80 + 10, text=str(y))
+                 if y == 1:
+-                    self.__canvas.create_text(x*80 - 10, (9-y)*80 - 10, text=chr(ord('A')+x-1))
+-        self.__canvas.pack()
+-        self.__canvas.bind('<Button-1>', self.click_handler)
+-        self.__canvas.bind('<B1-Motion>', self.move)
+-        self.__canvas.bind('<ButtonRelease-1>', self.check_position)
++                    canvas.create_text(x * 80 - 10, (9 - y) * 80 - 10, text=chr(ord('A') + x - 1))
++        return canvas
++
++    def add_piece(self, canvas, x, y):
++        piece = self.__table.get_piece(x, y)
++        color = piece.get_piece_info()[0]
++        type = piece.get_piece_info()[1]
++        piece_drawing = None
++        self.__square_dict[(x, y)][2] = color
++        if color == 'white':
++            if type == 'pawn':
++                img = Image.open('white_pawn.png')
++                if x == 1:
++                    canvas.img1 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img1)
++                elif x == 2:
++                    canvas.img2 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img2)
++                elif x == 3:
++                    canvas.img3 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img3)
++                elif x == 4:
++                    canvas.img4 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img4)
++                elif x == 5:
++                    canvas.img5 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img5)
++                elif x == 6:
++                    canvas.img6 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img6)
++                elif x == 7:
++                    canvas.img7 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img7)
++                else:
++                    canvas.img8 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img8)
++            elif type == 'rock':
++                img = Image.open('white_rock.png')
++                if x == 1:
++                    canvas.img9 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img9)
++                elif x == 8:
++                    canvas.img10 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img10)
++            elif type == 'knight':
++                img = Image.open('white_knight.png')
++                if x == 2:
++                    canvas.img11 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img11)
++                elif x == 7:
++                    canvas.img12 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img12)
++            elif type == 'bishop':
++                img = Image.open('white_bishop.png')
++                if x == 3:
++                    canvas.img13 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img13)
++                elif x == 6:
++                    canvas.img14 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img14)
++            elif type == 'queen':
++                img = Image.open('white_queen.png')
++                canvas.img15 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                           image=canvas.img15)
++            elif type == 'king':
++                img = Image.open('white_king.png')
++                canvas.img16 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                           image=canvas.img16)
++
++        else:
++            if type == 'pawn':
++                img = Image.open('black_pawn.png')
++                if x == 1:
++                    canvas.img17 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img17)
++                elif x == 2:
++                    canvas.img18 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img18)
++                elif x == 3:
++                    canvas.img19 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img19)
++                elif x == 4:
++                    canvas.img20 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img20)
++                elif x == 5:
++                    canvas.img21 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img21)
++                elif x == 6:
++                    canvas.img22 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img22)
++                elif x == 7:
++                    canvas.img23 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img23)
++                else:
++                    canvas.img24 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img24)
++            elif type == 'rock':
++                img = Image.open('black_rock.png')
++                if x == 1:
++                    canvas.img25 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img25)
++                elif x == 8:
++                    canvas.img26 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img26)
++            elif type == 'knight':
++                img = Image.open('black_knight.png')
++                if x == 2:
++                    canvas.img27 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img27)
++                elif x == 7:
++                    canvas.img28 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img28)
++            elif type == 'bishop':
++                img = Image.open('black_bishop.png')
++                if x == 3:
++                    canvas.img29 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img29)
++                elif x == 6:
++                    canvas.img30 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                               image=canvas.img30)
++            elif type == 'queen':
++                img = Image.open('black_queen.png')
++                canvas.img31 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                           image=canvas.img31)
++            elif type == 'king':
++                img = Image.open('black_king.png')
++                canvas.img32 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * 80 + 40, (8 - y) * 80 + 40,
++                                                           image=canvas.img32)
++        # self.__canvas.lift(piece_drawing)
++        self.__square_dict[(x, y)][1] = piece_drawing
++
++    def undo_click(self):
++        for element in self.__changes:
++            square = element[0]
++            x = element[1]
++            y = element[2]
++            if (x + y) % 2 == 0:
++                self.__canvas.itemconfig(square, fill=self.__colors['board1'])
++            else:
++                self.__canvas.itemconfig(square, fill=self.__colors['board2'])
+ 
+     def click_handler(self, event):
+-        x = event.x//80 + 1
+-        y = 8 - event.y//80
+-        self.__piece_x = event.x
+-        self.__piece_y = event.y
+-        self.__piece_drawing = self.__square_dict[(x, y)][1]
+-        if x not in range(1,9) or y not in range(1,9):
+-            pass
+-        else:
++        x = event.x // 80 + 1
++        y = 8 - event.y // 80
++        if x not in range(1, 9) or y not in range(1, 9): # we are not on the board
++            self.__piece_drawing = None
++            return
++        if self.__square_dict[(x,y)][1] is None and self.__canvas.itemcget(self.__square_dict[(x,y)][0], 'fill') != self.__colors['available position']:
++            # empty, not available square
++            self.__piece_drawing = None
++            return
++        if self.__canvas.itemcget(self.__square_dict[(x,y)][0], 'fill') == self.__colors['available position']:
++            pass # check_position will do the work
++        else:
++            # we are on a square with a piece in it
++            # we color it
++            self.__piece_x = event.x
++            self.__piece_y = event.y
++            self.__piece_drawing = self.__square_dict[(x, y)][1]
+             self.undo_click()
+             square = self.__square_dict[(x,y)][0]
+-            self.__canvas.itemconfig(square, fill = self.__colors['when clicked'])
++            if self.__canvas.itemcget(self.__square_dict[(x,y)][0], 'fill') == self.__colors['board1']:
++                self.__canvas.itemconfig(square, fill = self.__colors['when clicked1'])
++            else:
++                self.__canvas.itemconfig(square, fill=self.__colors['when clicked2'])
+             self.__changes.append([square, x, y])
+             piece = self.__table.get_piece(x, y)
+             self.__piece_coordinates = [x,y]
+-            available_positions = piece.get_available_moves(self.__table, x, y)
+-            for position in available_positions:
+-                square = self.__square_dict[(position[0], position[1])][0]
+-                self.__canvas.itemconfig(square, fill=self.__colors['available position'])
+-                self.__changes.append([square, position[0], position[1]])
++            if self.__square_dict[(x,y)][2] == self.__current_player:
++                # we show available positions only if it's our turn
++                available_positions = piece.get_available_moves(self.__table, x, y)
++                for position in available_positions:
++                    square = self.__square_dict[(position[0], position[1])][0]
++                    self.__canvas.itemconfig(square, fill=self.__colors['available position'])
++                    self.__changes.append([square, position[0], position[1]])
+ 
+-    def add_piece(self, canvas, x, y):
+-        piece = self.__table.get_piece(x, y)
+-        if str(piece) != '.':
+-            piece_drawing = canvas.create_oval((x-1)*80 + 20, (9-y-1)*80 + 20, x*80-20, (9-y)*80-20)
+-            self.__square_dict[(x,y)][1] = piece_drawing
+-            canvas.itemconfig(piece_drawing, fill = piece.get_piece_info()[0])
+-
+-    def undo_click(self):
+-        for element in self.__changes:
+-            square = element[0]
+-            x = element[1]
+-            y = element[2]
+-            if (x + y) % 2 == 0:
+-                self.__canvas.itemconfig(square, fill=self.__colors['board1'])
+-            else:
+-                self.__canvas.itemconfig(square, fill=self.__colors['board2'])
+-
+     def move(self, event):
+         x, y = event.x, event.y
+         if self.__piece_drawing is not None:
+@@ -92,21 +328,56 @@
+         x = event.x // 80 + 1
+         y = 8 - event.y // 80
+         square = self.__square_dict[(x,y)][0]
+-        # piece_drawing = self.__square_dict[(x,y)][1]
+-        color = self.__canvas.itemcget(square, 'fill')
+-        if color == self.__colors['available position']:
++        threatened_piece_drawing = self.__square_dict[(x,y)][1]
++        square_color = self.__canvas.itemcget(square, 'fill')
++        piece_color = self.__square_dict[(self.__piece_coordinates[0], self.__piece_coordinates[1])][2]
++        if square_color == self.__colors['available position']: # a move has been made
+             self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+             self.__square_dict[(x,y)][1] = self.__piece_drawing
+-            print(str(self.__table))
++            self.__square_dict[(x, y)][2] = piece_color
++            self.change_player()
++            self.undo_click()
++            self.__canvas.coords(self.__piece_drawing, (x - 1) * 80 + 40, (9 - y - 1) * 80 + 40)
++            # self.slide(self.__piece_drawing, self.__piece_x, self.__piece_y, (x-1)*80, (8-y)*80)
++            self.__piece_drawing = None
++            self.__square_dict[(self.__piece_coordinates[0], self.__piece_coordinates[1])][1] = None # image
++            self.__square_dict[(self.__piece_coordinates[0], self.__piece_coordinates[1])][2] = None # color
++            # del self.__square_dict[(self.__piece_coordinates[0], self.__piece_coordinates[1])]
++            self.__canvas.delete(threatened_piece_drawing)
+         else:
+             x = self.__piece_coordinates[0]
+             y = self.__piece_coordinates[1]
+-        self.__canvas.coords(self.__piece_drawing, (x - 1) * 80 + 20, (9 - y - 1) * 80 + 20, x * 80 - 20, (9 - y) * 80 - 20)
++            self.__canvas.coords(self.__piece_drawing, (x - 1) * 80 + 40, (9 - y - 1) * 80 + 40)
++
++    def motion(self, event):
++        x = event.x // 80 + 1
++        y = 8 - event.y // 80
++        if x not in range(1, 9) or y not in range(1, 9): # we are not on the board
++            self.__canvas.config(cursor="")
++        elif self.__square_dict[(x,y)][1] is None:
++            self.__canvas.config(cursor="")
++        else:
++            self.__canvas.config(cursor="hand1")
++
++    # def slide(self, piece, initial_x, initial_y, final_x, final_y):
++    #     x_rate = (final_x-initial_x)//100
++    #     y_rate = (final_y-initial_y)//100
++    #     while initial_x != final_x and initial_y != final_y:
++    #         self.__canvas.move(piece, x_rate, y_rate)
++    #         root.after(25, self.slide)
++    #         initial_x += x_rate
++    #         initial_y += y_rate
++
++    def change_player(self):
++        if self.__current_player == 'white':
++            self.__current_player = 'black'
++        else:
++            self.__current_player = 'white'
+ 
+ 
+ table = ChessTable()
+ root = Tk()
+ interface = GUI(table, root)
+-interface.convert_board_to_interface()
++interface.run_game()
+ root.mainloop()
+ 
+Index: GUI_improved.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- GUI_improved.py	(date 1616352524261)
++++ GUI_improved.py	(date 1616352524261)
+@@ -0,0 +1,242 @@
++from tkinter import *
++from chessTable import ChessTable
++from PIL import ImageTk, Image
++
++
++class Square:
++    def __init__(self, square, piece_drawing, color):
++        self.__square = square
++        self.__piece_drawing = piece_drawing
++        self.__color = color
++
++    def get_square(self):
++        return self.__square
++
++    def get_piece_drawing(self):
++        return self.__piece_drawing
++
++    def get_color(self):
++        return self.__color
++
++    def set_square(self, square):
++        self.__square = square
++
++    def set_piece_drawing(self, piece_drawing):
++        self.__piece_drawing = piece_drawing
++
++    def set_color(self, color):
++        self.__color = color
++
++
++class GUI:
++    def __init__(self, table, master):
++        self.__table = table
++        self.__frame = Frame(master,  width=2000, height=2000, bg = 'gray20')
++        root.state('zoomed')
++        self.__frame.grid(row=0, column=0, sticky='nesw')
++        root.grid_columnconfigure(0, weight=1)
++        root.grid_rowconfigure(0, weight=1)
++        self.__colors = {'board1' : 'MistyRose3',
++                         'board2' : 'steel blue',
++                         'when clicked2': 'SteelBlue2',
++                         'when clicked1': 'MistyRose2',
++                         'available position': 'AntiqueWhite1',
++                         'frame' : 'gray20'
++                        }
++        self.__square_size = 80
++        # dictionary in which the keys are tuples of the form (x,y), x and y being the position on the board
++        # the values are objects of class Square
++        self.__square_dict = {}
++        self.__changes = []
++        self.__piece_x = None
++        self.__piece_y = None
++        self.__piece_drawing = None
++        self.__piece_coordinates = None
++        self.__current_player = 'white'
++        self.__previous_click = None
++
++    def draw_board(self):
++        canvas = Canvas(self.__frame, width=641, height=641, highlightthickness=0, bg=self.__colors['board2'])
++        self.__table.populate_chess_table()
++        print(str(self.__table))
++        for x in range(1, 9):
++            for y in range(8, 0, -1):
++                square = canvas.create_rectangle((x - 1) * self.__square_size, (9 - y - 1) * self.__square_size, x * self.__square_size, (9 - y) * self.__square_size)
++                self.__square_dict[(x, y)] = Square(square, None, None)
++                if (x + y) % 2 == 0:
++                    canvas.itemconfig(square, fill=self.__colors['board1'])
++                else:
++                    canvas.itemconfig(square, fill=self.__colors['board2'])
++                self.add_piece(canvas, x, y)
++                if x == 1:
++                    canvas.create_text((x - 1) * self.__square_size + 10, (9 - y - 1) * self.__square_size + 10, text=str(y))
++                if y == 1:
++                    canvas.create_text(x * self.__square_size - 10, (9 - y) * self.__square_size - 10, text=chr(ord('A') + x - 1))
++        return canvas
++
++    def add_piece(self, canvas, x, y):
++        piece = self.__table.get_piece(x, y)
++        color = piece.get_piece_info()[0]
++        type = piece.get_piece_info()[1]
++        piece_drawing = None
++        self.__square_dict[(x, y)].set_color(color)
++        if color == 'white':
++            if type == 'pawn':
++                img = Image.open('white_pawn.png')
++                if x == 1:
++                    canvas.img1 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img1)
++                elif x == 2:
++                    canvas.img2 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img2)
++                elif x == 3:
++                    canvas.img3 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img3)
++                elif x == 4:
++                    canvas.img4 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img4)
++                elif x == 5:
++                    canvas.img5 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img5)
++                elif x == 6:
++                    canvas.img6 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img6)
++                elif x == 7:
++                    canvas.img7 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img7)
++                else:
++                    canvas.img8 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img8)
++            elif type == 'rock':
++                img = Image.open('white_rock.png')
++                if x == 1:
++                    canvas.img9 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img9)
++                elif x == 8:
++                    canvas.img10 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img10)
++            elif type == 'knight':
++                img = Image.open('white_knight.png')
++                if x == 2:
++                    canvas.img11 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img11)
++                elif x == 7:
++                    canvas.img12 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img12)
++            elif type == 'bishop':
++                img = Image.open('white_bishop.png')
++                if x == 3:
++                    canvas.img13 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                               image=canvas.img13)
++                elif x == 6:
++                    canvas.img14 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                               image=canvas.img14)
++            elif type == 'queen':
++                img = Image.open('white_queen.png')
++                canvas.img15 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                           image=canvas.img15)
++            elif type == 'king':
++                img = Image.open('white_king.png')
++                canvas.img16 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                           image=canvas.img16)
++
++        else:
++            if type == 'pawn':
++                img = Image.open('black_pawn.png')
++                if x == 1:
++                    canvas.img17 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                               image=canvas.img17)
++                elif x == 2:
++                    canvas.img18 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                               image=canvas.img18)
++                elif x == 3:
++                    canvas.img19 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size, (8 - y) * self.__square_size + self.__square_size,
++                                                               image=canvas.img19)
++                elif x == 4:
++                    canvas.img20 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img20)
++                elif x == 5:
++                    canvas.img21 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img21)
++                elif x == 6:
++                    canvas.img22 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img22)
++                elif x == 7:
++                    canvas.img23 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img23)
++                else:
++                    canvas.img24 = ImageTk.PhotoImage(img.resize((40,50), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img24)
++            elif type == 'rock':
++                img = Image.open('black_rock.png')
++                if x == 1:
++                    canvas.img25 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img25)
++                elif x == 8:
++                    canvas.img26 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img26)
++            elif type == 'knight':
++                img = Image.open('black_knight.png')
++                if x == 2:
++                    canvas.img27 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img27)
++                elif x == 7:
++                    canvas.img28 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img28)
++            elif type == 'bishop':
++                img = Image.open('black_bishop.png')
++                if x == 3:
++                    canvas.img29 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img29)
++                elif x == 6:
++                    canvas.img30 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                    piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                               image=canvas.img30)
++            elif type == 'queen':
++                img = Image.open('black_queen.png')
++                canvas.img31 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                           image=canvas.img31)
++            elif type == 'king':
++                img = Image.open('black_king.png')
++                canvas.img32 = ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS))
++                piece_drawing = canvas.create_image((x - 1) * self.__square_size + self.__square_size/2, (8 - y) * self.__square_size + self.__square_size/2,
++                                                           image=canvas.img32)
++        # self.__canvas.lift(piece_drawing)
++        self.__square_dict[(x, y)].set_piece_drawing(piece_drawing)
++
++
++table = ChessTable()
++root = Tk()
++interface = GUI(table, root)
++interface.draw_board()
++root.mainloop()
+\ No newline at end of file
+Index: tests.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import unittest\r\n\r\n\r\nclass Test(unittest.TestCase):\r\n\r\n    def test_pawn_available_moves(self):\r\n        pass\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- tests.py	(revision 81d006c15268a8bfa3dcc82dd1017f54866d74e5)
++++ tests.py	(date 1613911775027)
+@@ -5,3 +5,4 @@
+ 
+     def test_pawn_available_moves(self):
+         pass
++
+Index: gui.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import board\r\nimport pieces\r\nimport Tkinter as tk\r\nfrom PIL import Image, ImageTk\r\n\r\nclass BoardGuiTk(tk.Frame):\r\n    pieces = {}\r\n    selected = None\r\n    selected_piece = None\r\n    hilighted = None\r\n    icons = {}\r\n\r\n    color1 = \"white\"\r\n    color2 = \"grey\"\r\n\r\n    rows = 8\r\n    columns = 8\r\n\r\n    @property\r\n    def canvas_size(self):\r\n        return (self.columns * self.square_size,\r\n                self.rows * self.square_size)\r\n\r\n    def __init__(self, parent, chessboard, square_size=64):\r\n\r\n        self.chessboard = chessboard\r\n        self.square_size = square_size\r\n        self.parent = parent\r\n\r\n        canvas_width = self.columns * square_size\r\n        canvas_height = self.rows * square_size\r\n\r\n        tk.Frame.__init__(self, parent)\r\n\r\n        self.canvas = tk.Canvas(self, width=canvas_width, height=canvas_height, background=\"grey\")\r\n        self.canvas.pack(side=\"top\", fill=\"both\", anchor=\"c\", expand=True)\r\n\r\n        self.canvas.bind(\"<Configure>\", self.refresh)\r\n        self.canvas.bind(\"<Button-1>\", self.click)\r\n\r\n        self.statusbar = tk.Frame(self, height=64)\r\n        self.button_quit = tk.Button(self.statusbar, text=\"New\", fg=\"black\", command=self.reset)\r\n        self.button_quit.pack(side=tk.LEFT, in_=self.statusbar)\r\n\r\n        self.button_save = tk.Button(self.statusbar, text=\"Save\", fg=\"black\", command=self.chessboard.save_to_file)\r\n        self.button_save.pack(side=tk.LEFT, in_=self.statusbar)\r\n\r\n        self.label_status = tk.Label(self.statusbar, text=\"   White's turn  \", fg=\"black\")\r\n        self.label_status.pack(side=tk.LEFT, expand=0, in_=self.statusbar)\r\n\r\n        self.button_quit = tk.Button(self.statusbar, text=\"Quit\", fg=\"black\", command=self.parent.destroy)\r\n        self.button_quit.pack(side=tk.RIGHT, in_=self.statusbar)\r\n        self.statusbar.pack(expand=False, fill=\"x\", side='bottom')\r\n\r\n\r\n    def click(self, event):\r\n\r\n        # Figure out which square we've clicked\r\n        col_size = row_size = event.widget.master.square_size\r\n\r\n        current_column = event.x / col_size\r\n        current_row = 7 - (event.y / row_size)\r\n\r\n        position = self.chessboard.letter_notation((current_row, current_column))\r\n        piece = self.chessboard[position]\r\n\r\n        if self.selected_piece:\r\n            self.move(self.selected_piece[1], position)\r\n            self.selected_piece = None\r\n            self.hilighted = None\r\n            self.pieces = {}\r\n            self.refresh()\r\n            self.draw_pieces()\r\n\r\n        self.hilight(position)\r\n        self.refresh()\r\n\r\n    def move(self, p1, p2):\r\n        piece = self.chessboard[p1]\r\n        dest_piece = self.chessboard[p2]\r\n        if dest_piece is None or dest_piece.color != piece.color:\r\n            try:\r\n                self.chessboard.move(p1,p2)\r\n            except board.ChessError as error:\r\n                self.label_status[\"text\"] = error.__class__.__name__\r\n            else:\r\n                self.label_status[\"text\"] = \" \" + piece.color.capitalize() +\": \"+ p1 + p2\r\n\r\n\r\n    def hilight(self, pos):\r\n        piece = self.chessboard[pos]\r\n        if piece is not None and (piece.color == self.chessboard.player_turn):\r\n            self.selected_piece = (self.chessboard[pos], pos)\r\n            self.hilighted = map(self.chessboard.number_notation, (self.chessboard[pos].possible_moves(pos)))\r\n\r\n    def addpiece(self, name, image, row=0, column=0):\r\n        '''Add a piece to the playing board'''\r\n        self.canvas.create_image(0,0, image=image, tags=(name, \"piece\"), anchor=\"c\")\r\n        self.placepiece(name, row, column)\r\n\r\n    def placepiece(self, name, row, column):\r\n        '''Place a piece at the given row/column'''\r\n        self.pieces[name] = (row, column)\r\n        x0 = (column * self.square_size) + int(self.square_size/2)\r\n        y0 = ((7-row) * self.square_size) + int(self.square_size/2)\r\n        self.canvas.coords(name, x0, y0)\r\n\r\n    def refresh(self, event={}):\r\n        '''Redraw the board'''\r\n        if event:\r\n            xsize = int((event.width-1) / self.columns)\r\n            ysize = int((event.height-1) / self.rows)\r\n            self.square_size = min(xsize, ysize)\r\n\r\n        self.canvas.delete(\"square\")\r\n        color = self.color2\r\n        for row in range(self.rows):\r\n            color = self.color1 if color == self.color2 else self.color2\r\n            for col in range(self.columns):\r\n                x1 = (col * self.square_size)\r\n                y1 = ((7-row) * self.square_size)\r\n                x2 = x1 + self.square_size\r\n                y2 = y1 + self.square_size\r\n                if (self.selected is not None) and (row, col) == self.selected:\r\n                    self.canvas.create_rectangle(x1, y1, x2, y2, outline=\"black\", fill=\"orange\", tags=\"square\")\r\n                elif(self.hilighted is not None and (row, col) in self.hilighted):\r\n                    self.canvas.create_rectangle(x1, y1, x2, y2, outline=\"black\", fill=\"spring green\", tags=\"square\")\r\n                else:\r\n                    self.canvas.create_rectangle(x1, y1, x2, y2, outline=\"black\", fill=color, tags=\"square\")\r\n                color = self.color1 if color == self.color2 else self.color2\r\n        for name in self.pieces:\r\n            self.placepiece(name, self.pieces[name][0], self.pieces[name][1])\r\n        self.canvas.tag_raise(\"piece\")\r\n        self.canvas.tag_lower(\"square\")\r\n\r\n    def draw_pieces(self):\r\n        self.canvas.delete(\"piece\")\r\n        for coord, piece in self.chessboard.iteritems():\r\n            x,y = self.chessboard.number_notation(coord)\r\n            if piece is not None:\r\n                filename = \"img/%s%s.png\" % (piece.color, piece.abbriviation.lower())\r\n                piecename = \"%s%s%s\" % (piece.abbriviation, x, y)\r\n\r\n                if(filename not in self.icons):\r\n                    self.icons[filename] = ImageTk.PhotoImage(file=filename, width=32, height=32)\r\n\r\n                self.addpiece(piecename, self.icons[filename], x, y)\r\n                self.placepiece(piecename, x, y)\r\n\r\n    def reset(self):\r\n        self.chessboard.load(board.FEN_STARTING)\r\n        self.refresh()\r\n        self.draw_pieces()\r\n        self.refresh()\r\n\r\ndef display(chessboard):\r\n    root = tk.Tk()\r\n    root.title(\"Simple Python Chess\")\r\n\r\n    gui = BoardGuiTk(root, chessboard)\r\n    gui.pack(side=\"top\", fill=\"both\", expand=\"true\", padx=4, pady=4)\r\n    gui.draw_pieces()\r\n\r\n    #root.resizable(0,0)\r\n    root.mainloop()\r\n\r\nif __name__ == \"__main__\":\r\n    display()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gui.py	(revision 81d006c15268a8bfa3dcc82dd1017f54866d74e5)
++++ gui.py	(date 1616350050933)
+@@ -1,5 +1,5 @@
+-import board
+-import pieces
++import boardPiece
++import chessTable
+ import Tkinter as tk
+ from PIL import Image, ImageTk
+ 
