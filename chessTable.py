@@ -25,8 +25,16 @@ class ChessTable:
         self.__white_king_pos = None
         self.__black_king_pos = None
 
+        self.white_king_moved = False
+        self.black_king_moved = False
+
+        self.white_rock_left_moved = False
+        self.white_rock_right_moved = False
+        self.black_rock_left_moved = False
+        self.black_rock_right_moved = False
+
     # returns the chess table
-    def get_table(self) -> dict:
+    def get_table(self) -> Dict[Tuple[int, int], BoardPiece]:
         return self.__table
 
     def get_list_of_moves(self) -> List[Tuple[BoardPiece, Tuple[int, int], Tuple[int, int]]]:
@@ -46,7 +54,6 @@ class ChessTable:
     # return the piece at position (x,y)
     # return a NotOnBoard (subclass of BoardPiece) object if the piece is not on the board
     def get_piece(self, x, y) -> BoardPiece:
-        print(x,y)
         if (x not in range(1, 9)) or (y not in range(1, 9)):
             return NotOnBoard()
         return self.__table[(x, y)]
@@ -64,15 +71,48 @@ class ChessTable:
             self.__table[(new_x, new_y)] = self.__table[(x, y)]
             self.__table[(x, y)] = EmptyPiece()
 
+            # these are all for castling
+            if x == 1 and y == 1 and piece.get_piece_color_and_type() == ('white', 'rock'):
+                self.white_rock_left_moved = True
+            if x == 8 and y == 1 and piece.get_piece_color_and_type() == ('white', 'rock'):
+                self.white_rock_right_moved = True
+            if x == 1 and y == 8 and piece.get_piece_color_and_type() == ('black', 'rock'):
+                self.black_rock_left_moved = True
+            if x == 8 and y == 8 and piece.get_piece_color_and_type() == ('black', 'rock'):
+                self.black_rock_right_moved = True
+
+            if x == 5 and y == 1 and piece.get_piece_color_and_type() == ('white', 'king'):
+                self.white_king_moved = True
+            if x == 5 and y == 8 and piece.get_piece_color_and_type() == ('black', 'king'):
+                self.black_king_moved = True
+
+
             # en passant
             if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2:
                 self.__table[(new_x, y)] = EmptyPiece()
 
+            # white left castles, all is left is to move the rock
+            if piece.get_piece_color_and_type() == ('white','king') and new_x - x == -2:
+                self.__table[(x-4,y)] = EmptyPiece()
+                self.__table[(new_x+1, y)] = Rock('white')
+
+            if piece.get_piece_color_and_type() == ('white','king') and new_x - x == 2:
+                self.__table[(x+3,y)] = EmptyPiece()
+                self.__table[(new_x-1, y)] = Rock('white')
+
+            if piece.get_piece_color_and_type() == ('black','king') and new_x - x == -2:
+                self.__table[(x-4,y)] = EmptyPiece()
+                self.__table[(new_x+1, y)] = Rock('black')
+
+            if piece.get_piece_color_and_type() == ('black','king') and new_x - x == 2:
+                self.__table[(x+3,y)] = EmptyPiece()
+                self.__table[(new_x-1, y)] = Rock('black')
+
+
             # add the move to the list of moves
             self.__list_of_moves.append((piece, (new_x, new_y), (x, y)))
-            print(self.__list_of_moves)
 
-            # what happens if last move is castles?
+
 
 
 
@@ -107,12 +147,8 @@ class ChessTable:
     def play_game(self):
         pass
 
-table = ChessTable()
-table.populate_chess_table()
-print(len(table.get_table().keys()))
-print(table)
+# table = ChessTable()
+# table.populate_chess_table()
+# print(len(table.get_table().keys()))
+# print(table)
 
-d = {1: '2'}
-d[1] = '3'
-d[3] = '4'
-print(d.get(2))
