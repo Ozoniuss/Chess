@@ -508,6 +508,9 @@ class GUI:
 # Functions that handle the settings #
 
     def dark_mode_colors(self):
+        self.__colors['when clicked1'] = 'MistyRose2'
+        self.__colors['available position'] = 'AntiqueWhite1'
+        self.__colors['board1'] = '#dcbfb4'
         self.__colors['frame'] = 'gray20'
         self.__colors['button leave'] = 'gray27'
         self.__colors['button enter'] = 'gray36'
@@ -515,8 +518,11 @@ class GUI:
         self.__colors['status'] = 'gray36'
 
     def powder_mode_colors(self):
+        self.__colors['when clicked1'] = '#efcfc6'
+        self.__colors['available position'] = '#f9ebe8'
+        self.__colors['board1'] = '#e3b4a6'
         self.__colors['frame'] = '#d7b19f'
-        self.__colors['button leave'] = '#c9957c'
+        self.__colors['button leave'] = '#b57360'
         self.__colors['button enter'] = '#d7b19f'
         self.__colors['text'] =  'black'
         self.__colors['status'] = '#c9957c'
@@ -532,8 +538,10 @@ class GUI:
             self.__colors['board2'] = "PaleVioletRed4"
             self.__colors['when clicked2'] = '#c18687'
         elif variable == "Red":
-            self.__colors['board2'] = "indian red"
+            self.__colors['board2'] = "#8f0536"
             self.__colors['when clicked2'] = '#ee9193'
+        self.convert_board_to_interface()
+        self.create_status_bars()
 
     def set_dark_mode(self, state):
         if state == "Powder":
@@ -541,16 +549,21 @@ class GUI:
         else:
             self.dark_mode_colors()
         self.__dark_mode = state
-
-    def save_changes(self, root, *args):
-        root.destroy()
         self.__frame.config(bg=self.__colors['frame'])
         self.convert_board_to_interface()
         self.create_status_bars()
 
+    # def save_changes(self, root):
+    #     # self.set_board_color(color)
+    #     # self.set_dark_mode(mode)
+    #     root.destroy()
+    #     self.__frame.config(bg=self.__colors['frame'])
+    #     self.convert_board_to_interface()
+    #     self.create_status_bars()
+
     def create_combo(self, frame, options):
         combo = ttk.Combobox(frame, value=options)
-        combo.current(0)
+        combo.set('...')
         combo['state'] = 'readonly'
 
         frame.option_add("*TCombobox*Listbox*Background", self.__colors['button leave'])
@@ -584,11 +597,11 @@ class GUI:
         dark_mode_combo.bind('<<ComboboxSelected>>', lambda event: self.set_dark_mode(dark_mode_combo.get()))
         dark_mode_combo.grid(row=1, column=1, padx=10, pady=10)
 
-        B1 = Button(frame, text="Okay", height=2, width=10, command=partial(self.save_changes, new_root),
-                    bg=self.__colors['button leave'], fg=self.__colors['text'])
-        B1.grid(row=2,  padx=10, pady=20, sticky = 'ns')
-        B1.bind("<Enter>", lambda event, button=B1: self.on_enter(button))
-        B1.bind("<Leave>", lambda event, button=B1: self.on_leave(button))
+        # B1 = Button(frame, text="Okay", height=2, width=10, command=partial(self.save_changes, new_root),
+        #             bg=self.__colors['button leave'], fg=self.__colors['text'])
+        # B1.grid(row=2,  padx=10, pady=20, sticky = 'ns')
+        # B1.bind("<Enter>", lambda event, button=B1: self.on_enter(button))
+        # B1.bind("<Leave>", lambda event, button=B1: self.on_leave(button))
         new_root.mainloop()
 
 table = ChessTable()
