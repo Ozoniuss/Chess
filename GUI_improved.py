@@ -532,6 +532,7 @@ class GUI:
         self.__frame.config(bg=self.__colors['frame'])
         self.create_canvas()
 
+
     def popupmsg(self):
         new_root = Tk()
         new_root.title("Settings")
