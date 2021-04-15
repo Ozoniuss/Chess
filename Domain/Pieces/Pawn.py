@@ -1,15 +1,16 @@
 from Domain.Pieces.BoardPiece import *
 
+
 class Pawn(BoardPiece):
     # color('red' or 'white') is the color of the pawn
-    def __init__(self, color):
+    def __init__(self, color: str):
         super().__init__()
         self.__color = color
 
     def get_piece_color_and_type(self):
         return self.__color, 'pawn'
 
-    def get_available_moves(self, board, x, y):
+    def get_available_moves(self, board, x: int, y:int):
         # the board is passed as a parameter
         # x, y represent the coordinates of the piece
         available_moves = []
@@ -34,6 +35,19 @@ class Pawn(BoardPiece):
             if board.get_piece(x + 1, y + 1).get_piece_color_and_type()[0] == 'black':
                 available_moves.append((x + 1, y + 1))
 
+            # EN PASSANT ONLY
+            if y == 5:
+                last_moved_piece, new_pos, original_pos = board.get_list_of_moves()[-1]
+
+                # only if an enemy pawn moved 2 squares on the y axis
+                if last_moved_piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_pos[1] - original_pos[1]) == 2:
+                    # no need to check for an empty square
+                    if new_pos[0] == x-1:
+                        available_moves.append((x-1, 6))
+                    if new_pos[0] == x+1:
+                        available_moves.append((x+1, 6))
+
+
         if self.__color == 'black':
             # works exactly the same as white
             # we will decrease y-coordinate instead
@@ -49,11 +63,23 @@ class Pawn(BoardPiece):
             if board.get_piece(x + 1, y - 1).get_piece_color_and_type()[0] == 'white':
                 available_moves.append((x + 1, y - 1))
 
-        # STILL NEED TO EN PASSANT
+            # EN PASSANT ONLY
+            if y == 3:
+                last_moved_piece, new_pos, original_pos = board.get_list_of_moves()[-1]
+
+                # only if an enemy pawn moved 2 squares on the y axis
+                if last_moved_piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_pos[1] - original_pos[1]) == 2:
+                    # also the square needs to be empty
+                    if new_pos[0] == x - 1:
+                        available_moves.append((x - 1, 2))
+                    if new_pos[0] == x + 1:
+                        available_moves.append((x + 1, 2))
+
         return available_moves
 
     def get_attacking_spots(self, board, x, y):
 
+        # obs: No need to addd the en passant attacking moves sine the pawn technically attacks that square
         attacking_spots = []
 
         if self.__color == 'white':

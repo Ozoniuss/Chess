@@ -8,7 +8,7 @@ from Domain.Pieces.Pawn import Pawn
 from Domain.Pieces.Queen import Queen
 from Domain.Pieces.Rock import Rock
 from boardPiece import *
-
+from typing import *
 
 class ChessTable:
 
@@ -28,6 +28,10 @@ class ChessTable:
     # returns the chess table
     def get_table(self) -> dict:
         return self.__table
+
+    def get_list_of_moves(self) -> List[Tuple[BoardPiece, Tuple[int, int], Tuple[int, int]]]:
+        # the piece, the new square and the original square
+        return self.__list_of_moves
 
     def __str__(self):
         out = ''
@@ -49,7 +53,8 @@ class ChessTable:
 
     # move a piece at position new_x, new_y
     def move_piece(self, x, y, new_x, new_y):
-        if self.get_piece(x, y).get_piece_color_and_type()[0] == 'white' or self.get_piece(x, y).get_piece_color_and_type()[0] == 'black':
+        piece = self.get_piece(x, y)
+        if piece.get_piece_color_and_type()[0] == 'white' or piece.get_piece_color_and_type()[0] == 'black':
 
             # needs to be a valid move
             if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):
@@ -58,6 +63,16 @@ class ChessTable:
             # make the move, also eliminates opponent piece if needed
             self.__table[(new_x, new_y)] = self.__table[(x, y)]
             self.__table[(x, y)] = EmptyPiece()
+
+            # en passant
+            if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2:
+                self.__table[(new_x, y)] = EmptyPiece()
+
+            # add the move to the list of moves
+            self.__list_of_moves.append((piece, (new_x, new_y), (x, y)))
+            print(self.__list_of_moves)
+
+            # what happens if last move is castles?
 
 
 
