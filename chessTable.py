@@ -2,6 +2,9 @@ from boardPiece import *
 
 
 class ChessTable:
+
+    # table is stored as a dict, with the positions being the keys.
+    # (1,1) is the bottom left corner (white) and (8,8) is top right (black)
     def __init__(self):
         self.__table = {}
         for x in range(1, 9):
@@ -13,7 +16,8 @@ class ChessTable:
         self.__white_king_pos = None
         self.__black_king_pos = None
 
-    def get_table(self):
+    # returns the chess table
+    def get_table(self) -> dict:
         return self.__table
 
     def __str__(self):
@@ -26,14 +30,14 @@ class ChessTable:
         out += '  A B C D E F G H'
         return out
 
-    # return a piece at a certain position
-    def get_piece(self, x, y):
+    # return the piece at position (x,y)
+    # return a NotOnBoard (subclass of BoardPiece) object if the piece is not on the board
+    def get_piece(self, x, y) -> BoardPiece:
         if (x not in range(1, 9)) or (y not in range(1, 9)):
             return NotOnBoard()
         return self.__table[(x, y)]
 
-    # move a piece at a certain position
-
+    # move a piece at position new_x, new_y
     def move_piece(self, x, y, new_x, new_y):
         if self.get_piece(x, y).get_piece_info()[0] == 'white' or self.get_piece(x, y).get_piece_info()[0] == 'black':
 
