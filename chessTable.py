@@ -1,5 +1,14 @@
+from Domain.Pieces.Bishop import Bishop
+from Domain.Pieces.BoardPiece import BoardPiece
+from Domain.Pieces.EmptyPiece import EmptyPiece
+from Domain.Pieces.King import King
+from Domain.Pieces.Knight import Knight
+from Domain.Pieces.NotOnBoard import NotOnBoard
+from Domain.Pieces.Pawn import Pawn
+from Domain.Pieces.Queen import Queen
+from Domain.Pieces.Rock import Rock
 from boardPiece import *
-
+from typing import *
 
 class ChessTable:
 
@@ -9,7 +18,7 @@ class ChessTable:
         self.__table = {}
         for x in range(1, 9):
             for y in range(1, 9):
-                self.__table[(x, y)] = BoardPiece()
+                self.__table[(x, y)] = EmptyPiece()
 
         # stores the list of moves, convention:
         self.__list_of_moves = []
@@ -19,6 +28,10 @@ class ChessTable:
     # returns the chess table
     def get_table(self) -> dict:
         return self.__table
+
+    def get_list_of_moves(self) -> List[Tuple[BoardPiece, Tuple[int, int], Tuple[int, int]]]:
+        # the piece, the new square and the original square
+        return self.__list_of_moves
 
     def __str__(self):
         out = ''
@@ -33,13 +46,15 @@ class ChessTable:
     # return the piece at position (x,y)
     # return a NotOnBoard (subclass of BoardPiece) object if the piece is not on the board
     def get_piece(self, x, y) -> BoardPiece:
+        print(x,y)
         if (x not in range(1, 9)) or (y not in range(1, 9)):
             return NotOnBoard()
         return self.__table[(x, y)]
 
     # move a piece at position new_x, new_y
     def move_piece(self, x, y, new_x, new_y):
-        if self.get_piece(x, y).get_piece_color_and_type()[0] == 'white' or self.get_piece(x, y).get_piece_color_and_type()[0] == 'black':
+        piece = self.get_piece(x, y)
+        if piece.get_piece_color_and_type()[0] == 'white' or piece.get_piece_color_and_type()[0] == 'black':
 
             # needs to be a valid move
             if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):
@@ -47,7 +62,17 @@ class ChessTable:
 
             # make the move, also eliminates opponent piece if needed
             self.__table[(new_x, new_y)] = self.__table[(x, y)]
-            self.__table[(x, y)] = BoardPiece()
+            self.__table[(x, y)] = EmptyPiece()
+
+            # en passant
+            if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2:
+                self.__table[(new_x, y)] = EmptyPiece()
+
+            # add the move to the list of moves
+            self.__list_of_moves.append((piece, (new_x, new_y), (x, y)))
+            print(self.__list_of_moves)
+
+            # what happens if last move is castles?
 
 
 

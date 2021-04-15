@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 
-# this is an interface for all the chess pieces
+# This acts like a template for all the pieces
+# There are Pawns, Bishops, Knights, Rocks, Queens and Kings
+# NotOnBoard is a class used to designate an invalid piece -- it is useful when
+#    a move is made outside the board
+
 
 class BoardPiece(ABC):
 
     @abstractmethod
-    def get_piece_info(self) -> tuple:
-        return None, None
+    def get_piece_color_and_type(self) -> tuple : pass
 
-    def get_available_moves(self, board, x, y) -> list[tuple]:
-        return []
+    @abstractmethod
+    def get_available_moves(self, board, x, y) -> list: pass
 
-    def __str__(self):
-        return '.'
 
