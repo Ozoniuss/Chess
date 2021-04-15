@@ -64,16 +64,16 @@ class Pawn(BoardPiece):
                 available_moves.append((x + 1, y - 1))
 
             # EN PASSANT ONLY
-            if y == 3:
+            if y == 4:
                 last_moved_piece, new_pos, original_pos = board.get_list_of_moves()[-1]
 
                 # only if an enemy pawn moved 2 squares on the y axis
                 if last_moved_piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_pos[1] - original_pos[1]) == 2:
                     # also the square needs to be empty
                     if new_pos[0] == x - 1:
-                        available_moves.append((x - 1, 2))
+                        available_moves.append((x - 1, 3))
                     if new_pos[0] == x + 1:
-                        available_moves.append((x + 1, 2))
+                        available_moves.append((x + 1, 3))
 
         return available_moves
 
