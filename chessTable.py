@@ -1,3 +1,12 @@
+from Domain.Pieces.Bishop import Bishop
+from Domain.Pieces.BoardPiece import BoardPiece
+from Domain.Pieces.EmptyPiece import EmptyPiece
+from Domain.Pieces.King import King
+from Domain.Pieces.Knight import Knight
+from Domain.Pieces.NotOnBoard import NotOnBoard
+from Domain.Pieces.Pawn import Pawn
+from Domain.Pieces.Queen import Queen
+from Domain.Pieces.Rock import Rock
 from boardPiece import *
 
 
@@ -9,7 +18,7 @@ class ChessTable:
         self.__table = {}
         for x in range(1, 9):
             for y in range(1, 9):
-                self.__table[(x, y)] = BoardPiece()
+                self.__table[(x, y)] = EmptyPiece()
 
         # stores the list of moves, convention:
         self.__list_of_moves = []
@@ -33,6 +42,7 @@ class ChessTable:
     # return the piece at position (x,y)
     # return a NotOnBoard (subclass of BoardPiece) object if the piece is not on the board
     def get_piece(self, x, y) -> BoardPiece:
+        print(x,y)
         if (x not in range(1, 9)) or (y not in range(1, 9)):
             return NotOnBoard()
         return self.__table[(x, y)]
@@ -47,7 +57,7 @@ class ChessTable:
 
             # make the move, also eliminates opponent piece if needed
             self.__table[(new_x, new_y)] = self.__table[(x, y)]
-            self.__table[(x, y)] = BoardPiece()
+            self.__table[(x, y)] = EmptyPiece()
 
 
 
