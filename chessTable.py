@@ -7,7 +7,6 @@ from Domain.Pieces.NotOnBoard import NotOnBoard
 from Domain.Pieces.Pawn import Pawn
 from Domain.Pieces.Queen import Queen
 from Domain.Pieces.Rock import Rock
-from boardPiece import *
 from typing import *
 
 class ChessTable:

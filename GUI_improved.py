@@ -37,6 +37,7 @@ class Square:
 
 class GUI:
     def __init__(self, table, master):
+        self.__image_path = 'Pictures/'
         self.__table = table
         self.__frame = Frame(master,  width=2000, height=2000, bg = 'gray20')
         root.state('zoomed')
@@ -55,18 +56,18 @@ class GUI:
                          'text': 'white',
                          'status': 'gray36'
                         }
-        self.__images = {('pawn', 'black') : 'black_pawn.png',
-                         ('pawn', 'white'): 'white_pawn.png',
-                         ('bishop', 'black'): 'black_bishop.png',
-                         ('bishop', 'white'): 'white_bishop.png',
-                         ('knight', 'black'): 'black_knight.png',
-                         ('knight', 'white'): 'white_knight.png',
-                         ('rock', 'black'): 'black_rock.png',
-                         ('rock', 'white'): 'white_rock.png',
-                         ('king', 'black'): 'black_king.png',
-                         ('king', 'white'): 'white_king.png',
-                         ('queen', 'black'): 'black_queen.png',
-                         ('queen', 'white'): 'white_queen.png'
+        self.__images = {('pawn', 'black') : self.__image_path + 'black_pawn.png',
+                         ('pawn', 'white'): self.__image_path + 'white_pawn.png',
+                         ('bishop', 'black'): self.__image_path + 'black_bishop.png',
+                         ('bishop', 'white'): self.__image_path + 'white_bishop.png',
+                         ('knight', 'black'): self.__image_path + 'black_knight.png',
+                         ('knight', 'white'): self.__image_path + 'white_knight.png',
+                         ('rock', 'black'): self.__image_path + 'black_rock.png',
+                         ('rock', 'white'): self.__image_path + 'white_rock.png',
+                         ('king', 'black'): self.__image_path + 'black_king.png',
+                         ('king', 'white'): self.__image_path + 'white_king.png',
+                         ('queen', 'black'): self.__image_path + 'black_queen.png',
+                         ('queen', 'white'): self.__image_path + 'white_queen.png'
                          }
 
         self.__status_bar_black ={'pawn' : [],
@@ -279,7 +280,7 @@ class GUI:
         button3.bind("<Enter>", lambda event, button = button3: self.on_enter(button))
         button3.bind("<Leave>", lambda event, button = button3: self.on_leave(button))
 
-        img = Image.open("refresh.png")
+        img = Image.open(self.__image_path + "refresh.png")
         self.__photo_references.append(ImageTk.PhotoImage(img.resize((15, 15), Image.ANTIALIAS)))
 
         button4 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.reverse_board,
@@ -289,7 +290,7 @@ class GUI:
         button4.bind("<Enter>", lambda event, button = button4: self.on_leave(button))
         button4.bind("<Leave>", lambda event, button = button4: self.on_leave_standard(button))
 
-        img = Image.open("settings.png")
+        img = Image.open(self.__image_path + "settings.png")
         self.__photo_references.append(ImageTk.PhotoImage(img.resize((15, 15), Image.ANTIALIAS)))
 
         button5 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.popupmsg,
