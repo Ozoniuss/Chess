@@ -58,7 +58,7 @@ class ChessTable:
         return self.__table[(x, y)]
 
     # move a piece at position new_x, new_y
-    def move_piece(self, x, y, new_x, new_y):
+    def move_piece(self, x, y, new_x, new_y, promotion_piece = None):
         piece = self.get_piece(x, y)
         if piece.get_piece_color_and_type()[0] == 'white' or piece.get_piece_color_and_type()[0] == 'black':
 
@@ -95,24 +95,33 @@ class ChessTable:
                 self.__table[(x-4,y)] = EmptyPiece()
                 self.__table[(new_x+1, y)] = Rock('white')
 
+            # white right castles
             if piece.get_piece_color_and_type() == ('white','king') and new_x - x == 2:
                 self.__table[(x+3,y)] = EmptyPiece()
                 self.__table[(new_x-1, y)] = Rock('white')
 
+            # black left castles
             if piece.get_piece_color_and_type() == ('black','king') and new_x - x == -2:
                 self.__table[(x-4,y)] = EmptyPiece()
                 self.__table[(new_x+1, y)] = Rock('black')
 
+            # black right castles
             if piece.get_piece_color_and_type() == ('black','king') and new_x - x == 2:
                 self.__table[(x+3,y)] = EmptyPiece()
                 self.__table[(new_x-1, y)] = Rock('black')
 
 
+            # pawn reaches the end and can promote
+            if piece.get_piece_color_and_type() == ('white', 'pawn') and y == 7 and new_y == 8:
+                self.__table[(new_x, new_y)] = promotion_piece
+
+            # same for black pawn
+            if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 1 and new_y == 0:
+                self.__table[(new_x, new_y)] = promotion_piece
+
+
             # add the move to the list of moves
             self.__list_of_moves.append((piece, (new_x, new_y), (x, y)))
-
-
-
 
 
     def populate_chess_table(self):
