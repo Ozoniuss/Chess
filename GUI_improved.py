@@ -38,13 +38,14 @@ class Square:
 class GUI:
     def __init__(self, table, master):
         self.__image_path = 'Pictures/'
+        self.__root = master
         self.__table = table
         self.__frame = Frame(master,  width=2000, height=2000, bg = 'gray20')
-        root.state('zoomed')
+        self.__root.state('zoomed')
         self.__frame.grid(row=0, column=0, sticky='nesw')
         self.__frame.grid_propagate(False)
-        root.grid_columnconfigure(0, weight=1)
-        root.grid_rowconfigure(0, weight=1)
+        self.__root.grid_columnconfigure(0, weight=1)
+        self.__root.grid_rowconfigure(0, weight=1)
         self.__colors = {'board1' : '#dcbfb4',
                          'board2' : 'steel blue',
                          'when clicked2': 'SteelBlue2',
@@ -368,6 +369,7 @@ class GUI:
             self.__canvas.update()
 
     def unclick_handler(self, event):
+        promotion_piece = None
         x = event.x // 80 + 1
         y = 8 - event.y // 80
 
@@ -385,6 +387,10 @@ class GUI:
 
                 # check if a piece was taken out and if so, add it to the status bar
                 self.get_piece_out(x, y)
+
+                self.check_promotion(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+                # piece = self.__table.get_piece(self.__piece_coordinates[0], self.__piece_coordinates[1])
+                # color, type = piece.get_piece_color_and_type()
 
                 self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
                 self.change_player()
@@ -419,6 +425,22 @@ class GUI:
             self.__canvas.config(cursor="")
         else:
             self.__canvas.config(cursor="hand1")
+
+# Promotion #
+
+    def check_promotion(self, initial_x, initial_y, x, y):
+        piece = self.__table.get_piece(initial_x, initial_y)
+        # pawn reaches the end and can promote
+        if piece.get_piece_color_and_type() == ('white', 'pawn') and y == 7 and new_y == 8:
+            selected_piece = self.promotion_tab()
+
+        # same for black pawn
+        if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 2 and new_y == 1:
+            selected_piece = self.promotion_tab()
+
+    def promotion_tab(self):
+            pass
+
 
 # Functions that handle the status bars #
 
@@ -593,8 +615,3 @@ class GUI:
 
         new_root.mainloop()
 
-table = ChessTable()
-root = Tk()
-interface = GUI(table, root)
-interface.run_game()
-root.mainloop()
