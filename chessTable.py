@@ -67,6 +67,7 @@ class ChessTable:
                 raise Exception("Invalid move!")
 
             # make the move, also eliminates opponent piece if needed
+            old_piece = self.__table[(new_x, new_y)] # will be used for en passant
             self.__table[(new_x, new_y)] = self.__table[(x, y)]
             self.__table[(x, y)] = EmptyPiece()
 
@@ -87,7 +88,9 @@ class ChessTable:
 
 
             # en passant
-            if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2:
+            # basically, the only possible time a pawn moves diagonally on a square that had an empty piece is en passant
+            if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2 and \
+                    old_piece.get_piece_color_and_type() == (None, None):
                 self.__table[(new_x, y)] = EmptyPiece()
 
             # white left castles, all is left is to move the rock
