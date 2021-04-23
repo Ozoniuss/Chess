@@ -58,7 +58,7 @@ class ChessTable:
         return self.__table[(x, y)]
 
     # move a piece at position new_x, new_y
-    def move_piece(self, x, y, new_x, new_y, promotion_piece = None):
+    def move_piece(self, x, y, new_x, new_y, promotion_piece = EmptyPiece()):
         piece = self.get_piece(x, y)
         if piece.get_piece_color_and_type()[0] == 'white' or piece.get_piece_color_and_type()[0] == 'black':
 
@@ -116,7 +116,7 @@ class ChessTable:
                 self.__table[(new_x, new_y)] = promotion_piece
 
             # same for black pawn
-            if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 1 and new_y == 0:
+            if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 2 and new_y == 1:
                 self.__table[(new_x, new_y)] = promotion_piece
 
 

@@ -4,6 +4,12 @@ from PIL import ImageTk, Image
 from functools import partial
 from tkinter import ttk
 from tkinter import  colorchooser
+from Domain.Pieces.Queen import Queen
+from Domain.Pieces.Knight import Knight
+from Domain.Pieces.Rock import Rock
+from Domain.Pieces.Bishop import Bishop
+from Domain.Pieces.EmptyPiece import EmptyPiece
+from functools import partial
 
 
 class Square:
@@ -114,6 +120,11 @@ class GUI:
         self.__board_orientation = "wd"  # white down
 
         self.__dark_mode = "On"
+
+        self.__promotion_piece = EmptyPiece()
+
+        self.__new_root = Toplevel(self.__root)
+        self.__new_root.withdraw()
 
     def reset(self):
         self.__table = ChessTable()
@@ -330,7 +341,6 @@ class GUI:
             return
         if self.__square_dict[(x,y)].get_photo_image() is None and self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') != self.__colors['available position']:
             # empty, not available square
-            self.__piece_drawing = None
             return
         if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') == self.__colors['available position']:
             # we press an available square <=> we want to actually make the move
@@ -359,6 +369,7 @@ class GUI:
                     self.__canvas.itemconfig(square, fill=self.__colors['available position'])
                     self.__changes.append([square, position[0], position[1]])
 
+
     def move(self, event):
         x, y = event.x, event.y
         if self.__piece_drawing is not None:
@@ -369,7 +380,7 @@ class GUI:
             self.__canvas.update()
 
     def unclick_handler(self, event):
-        promotion_piece = None
+        self.__promotion_piece = EmptyPiece()
         x = event.x // 80 + 1
         y = 8 - event.y // 80
 
@@ -388,11 +399,11 @@ class GUI:
                 # check if a piece was taken out and if so, add it to the status bar
                 self.get_piece_out(x, y)
 
-                self.check_promotion(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
-                # piece = self.__table.get_piece(self.__piece_coordinates[0], self.__piece_coordinates[1])
-                # color, type = piece.get_piece_color_and_type()
+                self.check_promotion( self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+                print(self.__promotion_piece)
+                self.__new_root.withdraw()
 
-                self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+                self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, self.__promotion_piece)
                 self.change_player()
 
                 self.create_canvas()
@@ -428,18 +439,66 @@ class GUI:
 
 # Promotion #
 
-    def check_promotion(self, initial_x, initial_y, x, y):
+    def check_promotion(self, initial_x, initial_y, new_x, new_y):
         piece = self.__table.get_piece(initial_x, initial_y)
+        selected_piece = None
         # pawn reaches the end and can promote
-        if piece.get_piece_color_and_type() == ('white', 'pawn') and y == 7 and new_y == 8:
-            selected_piece = self.promotion_tab()
+        if piece.get_piece_color_and_type() == ('white', 'pawn') and initial_y == 7 and new_y == 8:
+            #self.__frame.grab_set()
+            self.promotion_tab('white')
 
         # same for black pawn
-        if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 2 and new_y == 1:
-            selected_piece = self.promotion_tab()
+        if piece.get_piece_color_and_type() == ('black', 'pawn') and initial_y == 2 and new_y == 1:
+            self.promotion_tab('black')
 
-    def promotion_tab(self):
-            pass
+
+    def create_button_promotion(self, frame, h, w, type, color):
+        img = Image.open(self.__images[type, color])
+        self.__photo_references.append(ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS)))
+        button= Button(frame, image = self.__photo_references[len(self.__photo_references)-1], height=h, width=h,
+                         bg=self.__colors['frame'], activebackground=self.__colors['button enter'], borderwidth=0)
+        button.bind("<Enter>", lambda event, button = button: self.on_leave(button))
+        button.bind("<Leave>", lambda event, button = button: self.on_leave_standard(button))
+        return button
+
+    def promotion_chosen(self, piece):
+        # a promotion piece was chosen, so we net to set it to the attribute and destroy the Promotion tab
+        self.__promotion_piece = piece
+        print(self.__promotion_piece)
+        self.__new_root.quit()
+
+
+    def promotion_tab(self, color):
+        self.__new_root.deiconify()
+        # new_root = Toplevel()
+        self.__new_root.title("Promotion")
+        self.__new_root.resizable(False, False)
+        frame = Frame(self.__new_root, width=280, height=70, bg=self.__colors['frame'])
+        frame.grid(row=0, column=0)
+        frame.grid_propagate(False)
+
+        button_queen = self.create_button_promotion(frame, 70, 70, 'queen', color)
+        frame.grid(row=0, column=0)
+        button_queen.grid(row=0, column=0, sticky=NW)
+        button_queen.config(command=partial(self.promotion_chosen,  Queen(color)))
+        # button_queen.bind("<Button-1>", lambda event, piece = Queen(color): self.promotion_chosen(piece), add="+")
+        # button_queen.bind("<Button-1>", lambda event : new_root.destroy(), add="+")
+        # button_queen.config(command = new_root.destroy)
+
+        button_knight = self.create_button_promotion(frame, 70, 70, 'knight', color)
+        button_knight.grid(row=0, column=1, sticky=NW)
+        button_knight.config(command = partial(self.promotion_chosen, Knight(color)))
+
+        button_rock = self.create_button_promotion(frame, 70, 70, 'rock', color)
+        button_rock.grid(row=0, column=2, sticky=NW)
+        button_rock.config(command = partial(self.promotion_chosen, Rock(color)))
+
+
+        button_bishop = self.create_button_promotion(frame, 70, 70, 'bishop', color)
+        button_bishop.grid(row=0, column=3, sticky=NW)
+        button_bishop.config(command = partial(self.promotion_chosen, Bishop(color)))
+
+        self.__new_root.mainloop()
 
 
 # Functions that handle the status bars #
