@@ -1,21 +1,14 @@
 from tkinter import *
-from chessTable import ChessTable
+from ChessTable.chessTable import ChessTable
 from PIL import ImageTk, Image
 from tkinter import ttk
-from tkinter import  colorchooser
-from Domain.Pieces.Queen import Queen
-from Domain.Pieces.Knight import Knight
-from Domain.Pieces.Rock import Rock
-from Domain.Pieces.Bishop import Bishop
-from Domain.Pieces.EmptyPiece import EmptyPiece
-from functools import partial
 from GUI.Square import Square
 from GUI.PromotionTab import PromotionTab
 from GUI.ImagesColors import ImagesColors
-
+from Event.Events import *
 
 class GUI:
-    def __init__(self, table, master):
+    def __init__(self, table, master, client = False):
         self.__image_path = 'Pictures/'
         self.__root = master
         self.__table = table
@@ -72,6 +65,12 @@ class GUI:
 
         self.__images_colors = ImagesColors(self.__frame)
         self.__promotion_tab = PromotionTab(self.__root, self.__frame)
+
+        self.client = client
+
+    @property
+    def table(self):
+        return self.__table
 
     def reset(self):
         self.__table = ChessTable()
@@ -346,7 +345,10 @@ class GUI:
                 promotion_piece = self.check_promotion( self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
                 self.__promotion_tab.hide()
 
-                self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece)
+                #self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece)
+                post_event('GUI_moved', [self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
+                if self.client:
+                    post_event('Notify_server', [self.client, self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
                 self.change_player()
 
                 self.create_canvas()
@@ -537,4 +539,8 @@ class GUI:
         dark_mode_combo.grid(row=1, column=1, padx=10, pady=10)
 
         new_root.mainloop()
+
+    def update(self):
+        self.convert_board_to_interface()
+        self.create_status_bars()
 
