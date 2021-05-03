@@ -6,11 +6,10 @@ from Domain.Pieces.Rock import Rock
 from Domain.Pieces.Bishop import Bishop
 from Domain.Pieces.EmptyPiece import EmptyPiece
 from functools import partial
-from GUI.ImagesColors import ImagesColors
 
 
 class PromotionTab:
-    def __init__(self, root, frame):
+    def __init__(self, root, frame, images_colors):
         self.__new_root = Toplevel(root)
         self.__new_root.withdraw()
         self.__new_root.protocol("WM_DELETE_WINDOW", self.replace_x)
@@ -18,7 +17,11 @@ class PromotionTab:
         self.__promotion_piece = EmptyPiece()
         self.__height = 70
         self.__width = 70
-        self.__images_colors = ImagesColors(frame)
+        self.__images_colors = images_colors
+
+        # self.__new_root.transient(root)
+        # self.__new_root.grab_set()
+        # root.wait_window(self.__new_root)
 
     def replace_x(self):
         self.__new_root.withdraw()

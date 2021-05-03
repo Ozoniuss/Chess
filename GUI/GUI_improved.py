@@ -6,6 +6,8 @@ from GUI.Square import Square
 from GUI.PromotionTab import PromotionTab
 from GUI.ImagesColors import ImagesColors
 from Event.Events import *
+from GUI.Status_bar import WhiteStatusBar, BlackStatusBar
+
 
 class GUI:
     def __init__(self, table, master, client = False):
@@ -35,14 +37,6 @@ class GUI:
                                 }
 
         self.__square_size = 80
-        self.__status_size = 20
-        self.__status_size_overlap = 7
-        self.__canvas_white = None
-        self.__canvas_black = None
-        self.__white_score = 0
-        self.__black_score = 0
-        self.__white_pixels = 100
-        self.__black_pixels = 100
 
         # dict keys: tuples of form (x,y), where x and y are the positions on the board
         # dict values: objects of class Square
@@ -64,9 +58,12 @@ class GUI:
         self.__dark_mode = "On"
 
         self.__images_colors = ImagesColors(self.__frame)
-        self.__promotion_tab = PromotionTab(self.__root, self.__frame)
+        self.__promotion_tab = PromotionTab(self.__root, self.__frame, self.__images_colors)
 
         self.client = client
+
+        self.__white_status_bar = WhiteStatusBar(self.__frame, self.__images_colors)
+        self.__black_status_bar = BlackStatusBar(self.__frame, self.__images_colors)
 
     @property
     def table(self):
@@ -83,12 +80,8 @@ class GUI:
             self.__status_bar_black[type] = []
             self.__status_bar_white[type] = []
 
-        self.__canvas_white = None
-        self.__canvas_black = None
-        self.__white_score = 0
-        self.__black_score = 0
-        self.__white_pixels = 100
-        self.__black_pixels = 100
+        self.__white_status_bar = WhiteStatusBar(self.__frame, self.__images_colors)
+        self.__black_status_bar = BlackStatusBar(self.__frame, self.__images_colors)
 
     def run_game(self):
         for widget in self.__frame.winfo_children():
@@ -150,7 +143,7 @@ class GUI:
                     canvas.itemconfig(square, fill=self.__images_colors.get_color('board1'))
                 else:
                     canvas.itemconfig(square, fill=self.__images_colors.get_color('board2'))
-                self.add_piece( x, y)
+                self.add_piece(x,y)
 
                 cnv_x, cnv_y = self.choose_coordinates(x, y)
                 self.add_text_to_board(cnv_x, cnv_y)
@@ -178,10 +171,8 @@ class GUI:
         self.__square_dict[(x, y)].set_colour(color)
         if color is not None and type is not None:
             img = Image.open(self.__images_colors.get_image(type, color))
-            if type == 'pawn':
-                self.__photo_references.append(ImageTk.PhotoImage(img.resize((40, 50), Image.ANTIALIAS)))
-            else:
-                self.__photo_references.append(ImageTk.PhotoImage(img.resize((50, 60), Image.ANTIALIAS)))
+
+            self.__photo_references.append(ImageTk.PhotoImage(img.resize((self.__images_colors.image_width, self.__images_colors.image_height), Image.ANTIALIAS)))
 
             cnv_x, cnv_y = self.choose_coordinates(x, y)
             piece_drawing = self.__canvas.create_image((cnv_x - 1) * self.__square_size + self.__square_size / 2,
@@ -191,16 +182,8 @@ class GUI:
             self.__square_dict[(x, y)].set_photo_image(piece_drawing)
 
     def create_status_bars(self):
-        self.__canvas_black = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__images_colors.get_color('status'))
-        self.__canvas_black.create_text(55, 20, text="Black player", fill="Black",font=('MS Serif', 12))
-        self.__canvas_white = Canvas(self.__frame, width=641, height=40, highlightthickness=0, bg=self.__images_colors.get_color('status'))
-        self.__canvas_white.create_text(55, 20, text="White player", fill="White", font=('MS Serif', 13))
-        if self.__board_orientation == 'wd':
-            self.__canvas_black.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
-            self.__canvas_white.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
-        else:
-            self.__canvas_black.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
-            self.__canvas_white.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
+        self.__white_status_bar.create_status_bar(self.__board_orientation)
+        self.__black_status_bar.create_status_bar(self.__board_orientation)
 
     def create_canvas(self):
         self.draw_board()
@@ -345,7 +328,7 @@ class GUI:
                 promotion_piece = self.check_promotion( self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
                 self.__promotion_tab.hide()
 
-                #self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece)
+                # self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece)
                 post_event('GUI_moved', [self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
                 if self.client:
                     post_event('Notify_server', [self.client, self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
@@ -403,65 +386,16 @@ class GUI:
 
 # Functions that handle the status bars #
 
-    def get_greater_pieces(self, type):
-        if type == 'pawn':
-            return ['bishop', 'knight', 'rock', 'queen', 'king']
-        elif type == 'bishop':
-            return ['knight', 'rock', 'queen', 'king']
-        elif type == 'knight':
-            return ['rock', 'queen', 'king']
-        elif type == 'rock':
-            return ['queen', 'king']
-        elif type == 'queen':
-            return ['king']
-
-    def switch_pieces_one_pos(self, color, type):
-        # Because we want the pieces of the same kind to overlap, the amount of pixels
-        # that the following pieces are moved depends if we have any pieces of "type" already out
-
-        pieces_to_be_moved = self.get_greater_pieces(type)
-        number_pieces_moved = 0
-        pixels = self.__status_size
-        if color == 'black':
-            if len(self.__status_bar_white[type]) != 0:
-                pixels = self.__status_size_overlap
-            for piece_type in pieces_to_be_moved:
-                for piece_drawing in self.__status_bar_white[piece_type]:
-                    self.__canvas_white.move(piece_drawing, pixels, 0)
-                    number_pieces_moved += 1
-        elif color == 'white':
-            if len(self.__status_bar_black[type]) != 0:
-                pixels = self.__status_size_overlap
-            for piece_type in pieces_to_be_moved:
-                for piece_drawing in self.__status_bar_black[piece_type]:
-                    self.__canvas_black.move(piece_drawing, pixels, 0)
-                    number_pieces_moved += 1
-        return number_pieces_moved, pixels
-
     def get_piece_out(self, x, y):
         threatened_piece_drawing = self.__square_dict[(x, y)].get_photo_image()
         if threatened_piece_drawing is not None:
             piece = self.__table.get_piece(x,y)
             color, type = piece.get_piece_color_and_type()
-            # because we want to keep the pieces in order, we get a list of types of the pieces
-            # that we move one position to the right
-            number_pieces_moved, pixels = self.switch_pieces_one_pos(color, type)
 
-            img = Image.open(self.__images_colors.get_image(type, color))
-            self.__photo_references.append(ImageTk.PhotoImage(img.resize((15, 20), Image.ANTIALIAS)))
-
-            if self.__current_player == 'white': # we got out a black piece, which goes into the white dictionary
-                image = self.__canvas_white.create_image((self.__white_pixels - self.__status_size * number_pieces_moved) + pixels, 20,
-                                                image=self.__photo_references[len(self.__photo_references) - 1])
-                self.__status_bar_white[type].append(image)
-                self.__white_score += 1
-                self.__white_pixels += pixels
-            elif self.__current_player == 'black':
-                image = self.__canvas_black.create_image((self.__black_pixels - self.__status_size * number_pieces_moved) + pixels, 20,
-                                                image=self.__photo_references[len(self.__photo_references) - 1])
-                self.__status_bar_black[type].append(image)
-                self.__black_score += 1
-                self.__black_pixels += pixels
+            if self.__current_player == 'black':
+                self.__white_status_bar.get_piece_out(color, type)
+            else:
+                self.__black_status_bar.get_piece_out(color, type)
 
 # Functions that handle the reversing of the board #
 
@@ -477,12 +411,10 @@ class GUI:
         self.undo_click()
         if self.__board_orientation == "wd":
             self.__board_orientation = "bd"
-            self.__canvas_white.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
-            self.__canvas_black.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
         else:
             self.__board_orientation = "wd"
-            self.__canvas_white.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
-            self.__canvas_black.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
+        self.__white_status_bar.reverse(self.__board_orientation)
+        self.__black_status_bar.reverse(self.__board_orientation)
 
         self.create_canvas()
 
@@ -490,8 +422,7 @@ class GUI:
 
     def set_board_color(self, variable):
         self.__images_colors.set_board_color(variable)
-        self.convert_board_to_interface()
-        self.create_status_bars()
+        self.create_canvas()
 
     def set_dark_mode(self, state):
         if state == "Powder":
@@ -501,6 +432,26 @@ class GUI:
         self.__dark_mode = state
         self.__frame.config(bg = self.__images_colors.get_color('frame'))
         self.convert_board_to_interface()
+        self.create_status_bars()
+
+    def change_pieces(self, variable):
+        if variable == "Normal contour":
+            self.__images_colors.set_pieces_normal()
+        elif variable == "Drawing":
+            self.__images_colors.set_pieces_drawing()
+        elif variable == "Minimalist":
+            self.__images_colors.set_pieces_minimalist()
+
+        self.create_canvas()
+        self.create_status_bars()
+
+    def set_transparent(self, variable):
+        if variable == "On":
+            self.__images_colors.check_transparent()
+        elif variable == "Off":
+            self.__images_colors.check_full()
+
+        self.create_canvas()
         self.create_status_bars()
 
     def create_combo(self, frame, options):
@@ -515,7 +466,7 @@ class GUI:
         return combo
 
     def settings_tab(self):
-        new_root = Tk()
+        new_root = Toplevel()
         new_root.title("Settings")
         new_root.resizable(False, False)
         frame = Frame(new_root,  width=300, height=500, bg = self.__images_colors.get_color('frame'))
@@ -523,10 +474,16 @@ class GUI:
         frame.grid_propagate(False)
 
         color_label = Label(frame, text="Board color:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
-        color_label.grid(row=0, column=0, padx=10, pady=10)
+        color_label.grid(row=0, column=0, padx=10, pady=10, sticky='E')
 
-        dark_mode_label = Label(frame, text="Theme mode:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
-        dark_mode_label.grid(row=1, column=0, padx=10, pady=10)
+        theme_label = Label(frame, text="Theme mode:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        theme_label.grid(row=1, column=0, padx=10, pady=10, sticky='E')
+
+        pieces_label = Label(frame, text="Pieces style:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        pieces_label.grid(row=2, column=0, padx=10, pady=10, sticky='E')
+
+        transparency_label = Label(frame, text="Transparent piece:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        transparency_label.grid(row=3, column=0, padx=10, pady=10, sticky='E')
 
         options = ["Blue", "Green", "Violet", "Red"]
         color_combo = self.create_combo(frame, options)
@@ -537,6 +494,20 @@ class GUI:
         dark_mode_combo = self.create_combo(frame, options2)
         dark_mode_combo.bind('<<ComboboxSelected>>', lambda event: self.set_dark_mode(dark_mode_combo.get()))
         dark_mode_combo.grid(row=1, column=1, padx=10, pady=10)
+
+        options3 = ["Normal contour", "Minimalist", "Drawing"]
+        pieces_combo = self.create_combo(frame, options3)
+        pieces_combo.bind('<<ComboboxSelected>>', lambda event: self.change_pieces(pieces_combo.get()))
+        pieces_combo.grid(row=2, column=1, padx=10, pady=10)
+
+        options4 = ["On", "Off"]
+        transparent_combo = self.create_combo(frame, options4)
+        transparent_combo.bind('<<ComboboxSelected>>', lambda event: self.set_transparent(transparent_combo.get()))
+        transparent_combo.grid(row=3, column=1, padx=10, pady=10)
+
+        new_root.transient(self.__root)
+        new_root.grab_set()
+        self.__root.wait_window(new_root)
 
         new_root.mainloop()
 
