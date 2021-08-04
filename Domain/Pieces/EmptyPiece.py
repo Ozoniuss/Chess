@@ -7,3 +7,6 @@ class EmptyPiece(BoardPiece):
 
     def get_available_moves(self, board, x, y) -> list:
         return []
+
+    def __str__(self):
+        return '.'
