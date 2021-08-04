@@ -10,31 +10,33 @@ from GUI.Status_bar import WhiteStatusBar, BlackStatusBar
 
 
 class GUI:
-    def __init__(self, table, master, client = False):
+    def __init__(self, table, master, client=False):
         self.__image_path = 'Pictures/'
         self.__root = master
+        self.__root.geometry("1200x750")
+        self.__root.resizable(True, True)
         self.__table = table
-        self.__frame = Frame(master,  width=2000, height=2000, bg = 'gray20')
+        self.__frame = Frame(master, width=2000, height=2000, bg='gray20')
         self.__root.state('zoomed')
         self.__frame.grid(row=0, column=0, sticky='nesw')
         self.__frame.grid_propagate(False)
         self.__root.grid_columnconfigure(0, weight=1)
         self.__root.grid_rowconfigure(0, weight=1)
 
-        self.__status_bar_black ={'pawn' : [],
-                                  'bishop': [],
-                                  'knight': [],
-                                  'rock': [],
-                                  'queen': [],
-                                  'king': []
-                                }
-        self.__status_bar_white ={'pawn' : [],
-                                  'bishop': [],
-                                  'knight': [],
-                                  'rock': [],
-                                  'queen': [],
-                                  'king': []
-                                }
+        self.__status_bar_black = {'pawn': [],
+                                   'bishop': [],
+                                   'knight': [],
+                                   'rock': [],
+                                   'queen': [],
+                                   'king': []
+                                   }
+        self.__status_bar_white = {'pawn': [],
+                                   'bishop': [],
+                                   'knight': [],
+                                   'rock': [],
+                                   'queen': [],
+                                   'king': []
+                                   }
 
         self.__square_size = 80
 
@@ -87,29 +89,34 @@ class GUI:
         for widget in self.__frame.winfo_children():
             widget.destroy()
 
+        for column in range(1, 6):
+            Grid.columnconfigure(self.__frame, index=column, weight=1)
+
         self.reset()
         self.__table = ChessTable()
         welcome_label = Label(self.__frame, text='\nWelcome to \nCHESS!\n', font=('MS Serif', 50),
                               fg=self.__images_colors.get_color('text'), bg=self.__images_colors.get_color('frame'))
-        welcome_label.grid(row=2, rowspan=4, column=2, sticky='sw')
+        welcome_label.grid(row=2, rowspan=4, column=2, sticky='nsew')
 
-        button_player = Button(self.__frame, text='Another player', height=4, width=30,
+        button_player = Button(self.__frame, text='Another player', height=4, width=20,
                                command=lambda: self.player(), bg=self.__images_colors.get_color('button leave'),
-                               activebackground=self.__images_colors.get_color('button enter'), fg=self.__images_colors.get_color('text'), font=('MS Serif', 15))
-        button_player.grid(row=7, column=2, pady=(0, 0), sticky='sw')
+                               activebackground=self.__images_colors.get_color('button enter'),
+                               fg=self.__images_colors.get_color('text'), font=('MS Serif', 15))
+        button_player.grid(row=7, column=2, pady=(0, 50), sticky='nsew')
         button_player.bind("<Enter>", lambda event, button=button_player: self.on_enter(button))
         button_player.bind("<Leave>", lambda event, button=button_player: self.on_leave(button))
 
-        button_computer = Button(self.__frame, text='Computer', height=4, width=30,
+        button_computer = Button(self.__frame, text='Computer', height=4, width=20,
                                  command=lambda: self.computer(), bg=self.__images_colors.get_color('button leave'),
-                                 activebackground=self.__images_colors.get_color('button enter'), fg=self.__images_colors.get_color('text'), font=('MS Serif', 15))
-        button_computer.grid(row=8, column=2, pady=(0, 0), sticky='sw')
+                                 activebackground=self.__images_colors.get_color('button enter'),
+                                 fg=self.__images_colors.get_color('text'), font=('MS Serif', 15))
+        button_computer.grid(row=8, column=2, pady=(0, 0), sticky='nsew')
         button_computer.bind("<Enter>", lambda event, button=button_computer: self.on_enter(button))
         button_computer.bind("<Leave>", lambda event, button=button_computer: self.on_leave(button))
 
         self.__table.populate_chess_table()
         self.draw_board()
-        self.__canvas.grid(row=1, rowspan=8, column=1, padx=50, pady=(70, 0), sticky=S)
+        self.__canvas.grid(row=1, rowspan=8, column=1, padx=50, pady=(70, 0), sticky='nsew')
 
     def player(self):
         self.convert_board_to_interface()
@@ -128,22 +135,21 @@ class GUI:
         button['background'] = self.__images_colors.get_color('frame')
 
     def draw_board(self):
-        canvas = Canvas(self.__frame, width=641, height=641, highlightthickness=0, bg=self.__images_colors.get_color('board2'))
+        canvas = Canvas(self.__frame, width=641, height=641, highlightthickness=0,
+                        bg=self.__images_colors.get_color('frame'))
         self.__canvas = canvas
 
         for x in range(1, 9):
             for y in range(8, 0, -1):
-
                 cnv_x, cnv_y = self.choose_coordinates(x, y)
-
-                square = canvas.create_rectangle((cnv_x - 1) * self.__square_size, (9 - cnv_y - 1) * self.__square_size, cnv_x * self.__square_size, (9 - cnv_y) * self.__square_size)
-
+                square = canvas.create_rectangle((cnv_x - 1) * self.__square_size, (9 - cnv_y - 1) * self.__square_size,
+                                                 cnv_x * self.__square_size, (9 - cnv_y) * self.__square_size)
                 self.__square_dict[(x, y)] = Square(square, None, None)
                 if (x + y) % 2 == 0:
                     canvas.itemconfig(square, fill=self.__images_colors.get_color('board1'))
                 else:
                     canvas.itemconfig(square, fill=self.__images_colors.get_color('board2'))
-                self.add_piece(x,y)
+                self.add_piece(x, y)
 
                 cnv_x, cnv_y = self.choose_coordinates(x, y)
                 self.add_text_to_board(cnv_x, cnv_y)
@@ -151,18 +157,20 @@ class GUI:
     def add_text_to_board(self, cnv_x, cnv_y):
         if cnv_x == 1:
             if self.__board_orientation == 'wd':
-                self.__canvas.create_text((cnv_x - 1) * self.__square_size + 10, (9 - cnv_y - 1) * self.__square_size + 10,
-                                   text=str(cnv_y))
+                self.__canvas.create_text((cnv_x - 1) * self.__square_size + 10,
+                                          (9 - cnv_y - 1) * self.__square_size + 10,
+                                          text=str(cnv_y))
             else:
-                self.__canvas.create_text((cnv_x - 1) * self.__square_size + 10, (9 - cnv_y - 1) * self.__square_size + 10,
-                                   text=str(9 - cnv_y))
+                self.__canvas.create_text((cnv_x - 1) * self.__square_size + 10,
+                                          (9 - cnv_y - 1) * self.__square_size + 10,
+                                          text=str(9 - cnv_y))
         if cnv_y == 1:
             if self.__board_orientation == 'wd':
                 self.__canvas.create_text(cnv_x * self.__square_size - 10, (9 - cnv_y) * self.__square_size - 10,
-                                   text=chr(ord('A') + cnv_x - 1))
+                                          text=chr(ord('A') + cnv_x - 1))
             else:
                 self.__canvas.create_text(cnv_x * self.__square_size - 10, (9 - cnv_y) * self.__square_size - 10,
-                                   text=chr(ord('A') + 9 - cnv_x - 1))
+                                          text=chr(ord('A') + 9 - cnv_x - 1))
 
     def add_piece(self, x, y):
         piece = self.__table.get_piece(x, y)
@@ -172,12 +180,13 @@ class GUI:
         if color is not None and type is not None:
             img = Image.open(self.__images_colors.get_image(type, color))
 
-            self.__photo_references.append(ImageTk.PhotoImage(img.resize((self.__images_colors.image_width, self.__images_colors.image_height), Image.ANTIALIAS)))
+            self.__photo_references.append(ImageTk.PhotoImage(
+                img.resize((self.__images_colors.image_width, self.__images_colors.image_height), Image.ANTIALIAS)))
 
             cnv_x, cnv_y = self.choose_coordinates(x, y)
             piece_drawing = self.__canvas.create_image((cnv_x - 1) * self.__square_size + self.__square_size / 2,
-                                                (8 - cnv_y) * self.__square_size + self.__square_size / 2,
-                                                image=self.__photo_references[len(self.__photo_references)-1])
+                                                       (8 - cnv_y) * self.__square_size + self.__square_size / 2,
+                                                       image=self.__photo_references[len(self.__photo_references) - 1])
 
             self.__square_dict[(x, y)].set_photo_image(piece_drawing)
 
@@ -187,7 +196,7 @@ class GUI:
 
     def create_canvas(self):
         self.draw_board()
-        self.__canvas.grid(row=2, column=1, rowspan = 32, padx=(50, 0), pady=10, sticky=S)
+        self.__canvas.grid(row=2, column=1, rowspan=32, padx=(50, 0), pady=10, sticky=S)
 
         self.__canvas.bind('<Button-1>', self.click_handler)
         self.__canvas.bind('<B1-Motion>', self.move)
@@ -199,47 +208,56 @@ class GUI:
             widget.destroy()
 
         self.create_canvas()
+        for column in range(1, 3):
+            Grid.columnconfigure(self.__frame, index=column, weight=0)
 
         button1 = Button(self.__frame, text='New game', height=1, width=7, command=self.run_game,
-                               bg=self.__images_colors.get_color('button leave'), activebackground=self.__images_colors.get_color('button enter'),
-                               fg=self.__images_colors.get_color('text'), font = ('MS Serif', 12))
-        button1.grid(row=33, column=3, padx = 20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
-        button1.bind("<Enter>", lambda event, button = button1: self.on_enter(button))
-        button1.bind("<Leave>", lambda event, button = button1: self.on_leave(button))
+                         bg=self.__images_colors.get_color('button leave'),
+                         activebackground=self.__images_colors.get_color('button enter'),
+                         fg=self.__images_colors.get_color('text'), font=('MS Serif', 12))
+        button1.grid(row=33, column=3, padx=10, pady=(0, 10), ipadx=60, ipady=12, sticky=S)
+        button1.bind("<Enter>", lambda event, button=button1: self.on_enter(button))
+        button1.bind("<Leave>", lambda event, button=button1: self.on_leave(button))
 
         button2 = Button(self.__frame, text='Reset', height=1, width=7, command=self.in_game_reset,
-                               bg=self.__images_colors.get_color('button leave'), activebackground=self.__images_colors.get_color('button enter'),
-                               fg=self.__images_colors.get_color('text'), font = ('MS Serif', 12))
-        button2.grid(row=33, column=4, padx = 20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
-        button2.bind("<Enter>", lambda event, button = button2: self.on_enter(button))
-        button2.bind("<Leave>", lambda event, button = button2: self.on_leave(button))
+                         bg=self.__images_colors.get_color('button leave'),
+                         activebackground=self.__images_colors.get_color('button enter'),
+                         fg=self.__images_colors.get_color('text'), font=('MS Serif', 12))
+        button2.grid(row=33, column=4, padx=10, pady=(0, 10), ipadx=60, ipady=12, sticky=S)
+        button2.bind("<Enter>", lambda event, button=button2: self.on_enter(button))
+        button2.bind("<Leave>", lambda event, button=button2: self.on_leave(button))
 
         button3 = Button(self.__frame, text='Exit', height=1, width=7, command=self.__frame.quit,
-                               bg=self.__images_colors.get_color('button leave'), activebackground=self.__images_colors.get_color('button enter'),
-                               fg=self.__images_colors.get_color('text'), font = ('MS Serif', 12))
-        button3.grid(row=33, column=5, padx=20, pady=(0,10), ipadx=60, ipady=12, sticky=S)
-        button3.bind("<Enter>", lambda event, button = button3: self.on_enter(button))
-        button3.bind("<Leave>", lambda event, button = button3: self.on_leave(button))
+                         bg=self.__images_colors.get_color('button leave'),
+                         activebackground=self.__images_colors.get_color('button enter'),
+                         fg=self.__images_colors.get_color('text'), font=('MS Serif', 12))
+        button3.grid(row=33, column=5, padx=10, pady=(0, 10), ipadx=60, ipady=12, sticky=S)
+        button3.bind("<Enter>", lambda event, button=button3: self.on_enter(button))
+        button3.bind("<Leave>", lambda event, button=button3: self.on_leave(button))
 
         img = Image.open(self.__image_path + "refresh.png")
         self.__photo_references.append(ImageTk.PhotoImage(img.resize((15, 15), Image.ANTIALIAS)))
 
-        button4 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.reverse_board,
-                               bg=self.__images_colors.get_color('frame'), activebackground=self.__images_colors.get_color('button enter'),
-                               fg=self.__images_colors.get_color('text'), font = ('MS Serif', 12), borderwidth=0)
+        button4 = Button(self.__frame, image=self.__photo_references[len(self.__photo_references) - 1], height=20,
+                         width=20, command=self.reverse_board,
+                         bg=self.__images_colors.get_color('frame'),
+                         activebackground=self.__images_colors.get_color('button enter'),
+                         fg=self.__images_colors.get_color('text'), font=('MS Serif', 12), borderwidth=0)
         button4.grid(row=2, column=2, padx=10, pady=(11, 0), sticky=NW)
-        button4.bind("<Enter>", lambda event, button = button4: self.on_leave(button))
-        button4.bind("<Leave>", lambda event, button = button4: self.on_leave_standard(button))
+        button4.bind("<Enter>", lambda event, button=button4: self.on_leave(button))
+        button4.bind("<Leave>", lambda event, button=button4: self.on_leave_standard(button))
 
         img = Image.open(self.__image_path + "settings.png")
         self.__photo_references.append(ImageTk.PhotoImage(img.resize((15, 15), Image.ANTIALIAS)))
 
-        button5 = Button(self.__frame, image = self.__photo_references[len(self.__photo_references)-1], height=20, width=20, command=self.settings_tab,
-                         bg=self.__images_colors.get_color('frame'), activebackground=self.__images_colors.get_color('button enter'),
-                         fg=self.__images_colors.get_color('text'), font = ('MS Serif', 12), borderwidth=0)
+        button5 = Button(self.__frame, image=self.__photo_references[len(self.__photo_references) - 1], height=20,
+                         width=20, command=self.settings_tab,
+                         bg=self.__images_colors.get_color('frame'),
+                         activebackground=self.__images_colors.get_color('button enter'),
+                         fg=self.__images_colors.get_color('text'), font=('MS Serif', 12), borderwidth=0)
         button5.grid(row=3, column=2, padx=10, pady=0, sticky=NW)
-        button5.bind("<Enter>", lambda event, button = button5: self.on_leave(button))
-        button5.bind("<Leave>", lambda event, button = button5: self.on_leave_standard(button))
+        button5.bind("<Enter>", lambda event, button=button5: self.on_leave(button))
+        button5.bind("<Leave>", lambda event, button=button5: self.on_leave_standard(button))
 
     def in_game_reset(self):
         self.reset()
@@ -265,15 +283,18 @@ class GUI:
 
         x, y = self.choose_coordinates(x, y)
 
-        if x not in range(1, 9) or y not in range(1, 9): # we are not on the board
+        if x not in range(1, 9) or y not in range(1, 9):  # we are not on the board
             self.__piece_drawing = None
             return
-        if self.__square_dict[(x,y)].get_photo_image() is None and self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') != self.__images_colors.get_color('available position'):
+        if self.__square_dict[(x, y)].get_photo_image() is None and \
+                self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(),
+                                       'fill') != self.__images_colors.get_color('available position'):
             # empty, not available square
             return
-        if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') == self.__images_colors.get_color('available position'):
+        if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') == self.__images_colors.get_color(
+                'available position'):
             # we press an available square <=> we want to actually make the move
-            pass # unclick_handler will do the work
+            pass  # unclick_handler will do the work
         else:
             # we are on a square with a piece in it
             # we color it
@@ -283,7 +304,8 @@ class GUI:
             self.undo_click()
             square = self.__square_dict[(x, y)].get_square()
             # coloring the pressed square
-            if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(), 'fill') ==self.__images_colors.get_color('board1'):
+            if self.__canvas.itemcget(self.__square_dict[(x, y)].get_square(),
+                                      'fill') == self.__images_colors.get_color('board1'):
                 self.__canvas.itemconfig(square, fill=self.__images_colors.get_color('when clicked1'))
             else:
                 self.__canvas.itemconfig(square, fill=self.__images_colors.get_color('when clicked2'))
@@ -313,25 +335,29 @@ class GUI:
 
         x, y = self.choose_coordinates(x, y)
 
-        if (x < 1 or x > 8) or (y < 1 or y > 8): # not on the board
+        if (x < 1 or x > 8) or (y < 1 or y > 8):  # not on the board
             self.return_piece_to_its_place()
             return
-        square = self.__square_dict[(x,y)].get_square()
+        square = self.__square_dict[(x, y)].get_square()
         square_color = self.__canvas.itemcget(square, 'fill')
-        if self.__piece_drawing is not None: # we only do something if a piece was selected
-            if square_color == self.__images_colors.get_color('available position'): # a move has been made
+        if self.__piece_drawing is not None:  # we only do something if a piece was selected
+            if square_color == self.__images_colors.get_color('available position'):  # a move has been made
                 self.undo_click()
 
                 # check if a piece was taken out and if so, add it to the status bar
                 self.get_piece_out(x, y)
 
-                promotion_piece = self.check_promotion( self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
+                promotion_piece = self.check_promotion(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y)
                 self.__promotion_tab.hide()
 
-                # self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece)
-                post_event('GUI_moved', [self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
+                # self.__table.move_piece(self.__piece_coordinates[0], self.__piece_coordinates[1], x, y,
+                # promotion_piece)
+                post_event('GUI_moved', [self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y,
+                                         promotion_piece])
                 if self.client:
-                    post_event('Notify_server', [self.client, self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x, y, promotion_piece])
+                    post_event('Notify_server',
+                               [self.client, self.__table, self.__piece_coordinates[0], self.__piece_coordinates[1], x,
+                                y, promotion_piece])
                 self.change_player()
 
                 self.create_canvas()
@@ -358,38 +384,42 @@ class GUI:
         x = event.x // 80 + 1
         y = 8 - event.y // 80
 
-        if x not in range(1, 9) or y not in range(1, 9): # we are not on the board
+        if x not in range(1, 9) or y not in range(1, 9):  # we are not on the board
             self.__canvas.config(cursor="")
-        elif self.__square_dict[(x,y)].get_photo_image() is None:
+        elif self.__square_dict[(x, y)].get_photo_image() is None:
             self.__canvas.config(cursor="")
         else:
             self.__canvas.config(cursor="hand1")
 
-# Promotion #
+    # Promotion #
 
     def check_promotion(self, initial_x, initial_y, new_x, new_y):
         piece = self.__table.get_piece(initial_x, initial_y)
         selected_piece = None
         # pawn reaches the end and can promote
         if piece.get_piece_color_and_type() == ('white', 'pawn') and initial_y == 7 and new_y == 8:
-            self.__promotion_tab.promotion_tab('white', self.__images_colors.get_color('frame'), self.__images_colors.get_color('frame'),
-                                               self.__images_colors.get_color('button enter'), self.__images_colors.get_color('button leave'),
+            self.__promotion_tab.promotion_tab('white', self.__images_colors.get_color('frame'),
+                                               self.__images_colors.get_color('frame'),
+                                               self.__images_colors.get_color('button enter'),
+                                               self.__images_colors.get_color('button leave'),
                                                self.__images_colors.get_color('frame'))
 
         # same for black pawn
         if piece.get_piece_color_and_type() == ('black', 'pawn') and initial_y == 2 and new_y == 1:
-            self.__promotion_tab.promotion_tab('black', self.__images_colors.get_color('frame'), self.__images_colors.get_color('frame'),
-                                               self.__images_colors.get_color('button enter'), self.__images_colors.get_color('button leave'),
+            self.__promotion_tab.promotion_tab('black', self.__images_colors.get_color('frame'),
+                                               self.__images_colors.get_color('frame'),
+                                               self.__images_colors.get_color('button enter'),
+                                               self.__images_colors.get_color('button leave'),
                                                self.__images_colors.get_color('frame'))
 
         return self.__promotion_tab.get_promotion_piece()
 
-# Functions that handle the status bars #
+    # Functions that handle the status bars #
 
     def get_piece_out(self, x, y):
         threatened_piece_drawing = self.__square_dict[(x, y)].get_photo_image()
         if threatened_piece_drawing is not None:
-            piece = self.__table.get_piece(x,y)
+            piece = self.__table.get_piece(x, y)
             color, type = piece.get_piece_color_and_type()
 
             if self.__current_player == 'black':
@@ -397,14 +427,14 @@ class GUI:
             else:
                 self.__black_status_bar.get_piece_out(color, type)
 
-# Functions that handle the reversing of the board #
+    # Functions that handle the reversing of the board #
 
     def choose_coordinates(self, x, y):
         a = x
         b = y
         if self.__board_orientation != 'wd':
-            a = 9-x
-            b = 9-y
+            a = 9 - x
+            b = 9 - y
         return a, b
 
     def reverse_board(self):
@@ -418,7 +448,7 @@ class GUI:
 
         self.create_canvas()
 
-# Functions that handle the settings #
+    # Functions that handle the settings #
 
     def set_board_color(self, variable):
         self.__images_colors.set_board_color(variable)
@@ -430,7 +460,7 @@ class GUI:
         else:
             self.__images_colors.dark_mode_colors()
         self.__dark_mode = state
-        self.__frame.config(bg = self.__images_colors.get_color('frame'))
+        self.__frame.config(bg=self.__images_colors.get_color('frame'))
         self.convert_board_to_interface()
         self.create_status_bars()
 
@@ -460,8 +490,10 @@ class GUI:
         combo['state'] = 'readonly'
 
         frame.option_add("*TCombobox*Listbox*Background", self.__images_colors.get_color('button leave'))
-        frame.option_add('*TCombobox*Listbox.selectBackground', self.__images_colors.get_color('button enter'))  # change highlight color
-        frame.option_add('*TCombobox*Listbox.selectForeground', self.__images_colors.get_color('text'))  # change text color
+        frame.option_add('*TCombobox*Listbox.selectBackground',
+                         self.__images_colors.get_color('button enter'))  # change highlight color
+        frame.option_add('*TCombobox*Listbox.selectForeground',
+                         self.__images_colors.get_color('text'))  # change text color
 
         return combo
 
@@ -469,20 +501,24 @@ class GUI:
         new_root = Toplevel()
         new_root.title("Settings")
         new_root.resizable(False, False)
-        frame = Frame(new_root,  width=300, height=500, bg = self.__images_colors.get_color('frame'))
+        frame = Frame(new_root, width=300, height=500, bg=self.__images_colors.get_color('frame'))
         frame.grid(row=0, column=0)
         frame.grid_propagate(False)
 
-        color_label = Label(frame, text="Board color:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        color_label = Label(frame, text="Board color:", bg=self.__images_colors.get_color('frame'),
+                            fg=self.__images_colors.get_color('text'))
         color_label.grid(row=0, column=0, padx=10, pady=10, sticky='E')
 
-        theme_label = Label(frame, text="Theme mode:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        theme_label = Label(frame, text="Theme mode:", bg=self.__images_colors.get_color('frame'),
+                            fg=self.__images_colors.get_color('text'))
         theme_label.grid(row=1, column=0, padx=10, pady=10, sticky='E')
 
-        pieces_label = Label(frame, text="Pieces style:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        pieces_label = Label(frame, text="Pieces style:", bg=self.__images_colors.get_color('frame'),
+                             fg=self.__images_colors.get_color('text'))
         pieces_label.grid(row=2, column=0, padx=10, pady=10, sticky='E')
 
-        transparency_label = Label(frame, text="Transparent piece:", bg=self.__images_colors.get_color('frame'), fg=self.__images_colors.get_color('text'))
+        transparency_label = Label(frame, text="Transparent piece:", bg=self.__images_colors.get_color('frame'),
+                                   fg=self.__images_colors.get_color('text'))
         transparency_label.grid(row=3, column=0, padx=10, pady=10, sticky='E')
 
         options = ["Blue", "Green", "Violet", "Red"]
@@ -514,4 +550,3 @@ class GUI:
     def update(self):
         self.convert_board_to_interface()
         self.create_status_bars()
-
