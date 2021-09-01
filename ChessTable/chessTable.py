@@ -8,6 +8,8 @@ from Domain.Pieces.Pawn import Pawn
 from Domain.Pieces.Queen import Queen
 from Domain.Pieces.Rock import Rock
 from typing import *
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
 
 class ChessTable:
 
@@ -60,7 +62,7 @@ class ChessTable:
     # move a piece at position new_x, new_y
     def move_piece(self, x, y, new_x, new_y, promotion_piece = EmptyPiece()):
         piece = self.get_piece(x, y)
-        if piece.get_piece_color_and_type()[0] == 'white' or piece.get_piece_color_and_type()[0] == 'black':
+        if piece.get_piece_color_and_type()[0] == PieceColor.WHITE or piece.get_piece_color_and_type()[0] == PieceColor.BLACK:
 
             # needs to be a valid move
             if (new_x, new_y) not in self.get_piece(x, y).get_available_moves(self, x, y):
@@ -72,54 +74,54 @@ class ChessTable:
             self.__table[(x, y)] = EmptyPiece()
 
             # these are all for castling
-            if x == 1 and y == 1 and piece.get_piece_color_and_type() == ('white', 'rock'):
+            if x == 1 and y == 1 and piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.ROCK):
                 self.white_rock_left_moved = True
-            if x == 8 and y == 1 and piece.get_piece_color_and_type() == ('white', 'rock'):
+            if x == 8 and y == 1 and piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.ROCK):
                 self.white_rock_right_moved = True
-            if x == 1 and y == 8 and piece.get_piece_color_and_type() == ('black', 'rock'):
+            if x == 1 and y == 8 and piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.ROCK):
                 self.black_rock_left_moved = True
-            if x == 8 and y == 8 and piece.get_piece_color_and_type() == ('black', 'rock'):
+            if x == 8 and y == 8 and piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.ROCK):
                 self.black_rock_right_moved = True
 
-            if x == 5 and y == 1 and piece.get_piece_color_and_type() == ('white', 'king'):
+            if x == 5 and y == 1 and piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.KING):
                 self.white_king_moved = True
-            if x == 5 and y == 8 and piece.get_piece_color_and_type() == ('black', 'king'):
+            if x == 5 and y == 8 and piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.KING):
                 self.black_king_moved = True
 
 
             # en passant
             # basically, the only possible time a pawn moves diagonally on a square that had an empty piece is en passant
-            if piece.get_piece_color_and_type()[1] == 'pawn' and abs(new_x - x) + abs(new_y - y) == 2 and \
+            if piece.get_piece_color_and_type()[1] == PieceType.PAWN and abs(new_x - x) + abs(new_y - y) == 2 and \
                     old_piece.get_piece_color_and_type() == (None, None):
                 self.__table[(new_x, y)] = EmptyPiece()
 
             # white left castles, all is left is to move the rock
-            if piece.get_piece_color_and_type() == ('white','king') and new_x - x == -2:
+            if piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.KING) and new_x - x == -2:
                 self.__table[(x-4,y)] = EmptyPiece()
-                self.__table[(new_x+1, y)] = Rock('white')
+                self.__table[(new_x+1, y)] = Rock(PieceColor.WHITE)
 
             # white right castles
-            if piece.get_piece_color_and_type() == ('white','king') and new_x - x == 2:
+            if piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.KING) and new_x - x == 2:
                 self.__table[(x+3,y)] = EmptyPiece()
-                self.__table[(new_x-1, y)] = Rock('white')
+                self.__table[(new_x-1, y)] = Rock(PieceColor.WHITE)
 
             # black left castles
-            if piece.get_piece_color_and_type() == ('black','king') and new_x - x == -2:
+            if piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.KING) and new_x - x == -2:
                 self.__table[(x-4,y)] = EmptyPiece()
-                self.__table[(new_x+1, y)] = Rock('black')
+                self.__table[(new_x+1, y)] = Rock(PieceColor.BLACK)
 
             # black right castles
-            if piece.get_piece_color_and_type() == ('black','king') and new_x - x == 2:
+            if piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.KING) and new_x - x == 2:
                 self.__table[(x+3,y)] = EmptyPiece()
-                self.__table[(new_x-1, y)] = Rock('black')
+                self.__table[(new_x-1, y)] = Rock(PieceColor.BLACK)
 
 
             # pawn reaches the end and can promote
-            if piece.get_piece_color_and_type() == ('white', 'pawn') and y == 7 and new_y == 8:
+            if piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.PAWN) and y == 7 and new_y == 8:
                 self.__table[(new_x, new_y)] = promotion_piece
 
             # same for black pawn
-            if piece.get_piece_color_and_type() == ('black', 'pawn') and y == 2 and new_y == 1:
+            if piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.PAWN) and y == 2 and new_y == 1:
                 self.__table[(new_x, new_y)] = promotion_piece
 
 
@@ -132,28 +134,28 @@ class ChessTable:
         self.__black_king_pos = (5, 8)
         # pawns
         for x in range(1, 9):
-            self.__table[(x, 7)] = Pawn('black')
+            self.__table[(x, 7)] = Pawn(PieceColor.BLACK)
 
         for x in range(1, 9):
-            self.__table[(x, 2)] = Pawn('white')
+            self.__table[(x, 2)] = Pawn(PieceColor.WHITE)
 
         # other pieces
-        self.__table[(1, 1)] = Rock('white')
-        self.__table[(8, 1)] = Rock('white')
-        self.__table[(1, 8)] = Rock('black')
-        self.__table[(8, 8)] = Rock('black')
-        self.__table[(2, 1)] = Knight('white')
-        self.__table[(7, 1)] = Knight('white')
-        self.__table[(2, 8)] = Knight('black')
-        self.__table[(7, 8)] = Knight('black')
-        self.__table[(3, 1)] = Bishop('white')
-        self.__table[(6, 1)] = Bishop('white')
-        self.__table[(3, 8)] = Bishop('black')
-        self.__table[(6, 8)] = Bishop('black')
-        self.__table[(4, 1)] = Queen('white')
-        self.__table[(5, 1)] = King('white')
-        self.__table[(4, 8)] = Queen('black')
-        self.__table[(5, 8)] = King('black')
+        self.__table[(1, 1)] = Rock(PieceColor.WHITE)
+        self.__table[(8, 1)] = Rock(PieceColor.WHITE)
+        self.__table[(1, 8)] = Rock(PieceColor.BLACK)
+        self.__table[(8, 8)] = Rock(PieceColor.BLACK)
+        self.__table[(2, 1)] = Knight(PieceColor.WHITE)
+        self.__table[(7, 1)] = Knight(PieceColor.WHITE)
+        self.__table[(2, 8)] = Knight(PieceColor.BLACK)
+        self.__table[(7, 8)] = Knight(PieceColor.BLACK)
+        self.__table[(3, 1)] = Bishop(PieceColor.WHITE)
+        self.__table[(6, 1)] = Bishop(PieceColor.WHITE)
+        self.__table[(3, 8)] = Bishop(PieceColor.BLACK)
+        self.__table[(6, 8)] = Bishop(PieceColor.BLACK)
+        self.__table[(4, 1)] = Queen(PieceColor.WHITE)
+        self.__table[(5, 1)] = King(PieceColor.WHITE)
+        self.__table[(4, 8)] = Queen(PieceColor.BLACK)
+        self.__table[(5, 8)] = King(PieceColor.BLACK)
 
     def play_game(self):
         pass

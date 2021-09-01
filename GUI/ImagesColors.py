@@ -1,8 +1,11 @@
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
 
 class ImagesColors:
     def __init__(self, frame):
         self.__frame = frame
         self.__image_path = 'Pictures/'
+
         self.__colors = {'board1': '#dcbfb4',
                          'board2': 'steel blue',
                          'when clicked2': 'SteelBlue2',
@@ -15,18 +18,18 @@ class ImagesColors:
                          'status': 'gray36'
                         }
 
-        self.__images = {('pawn', 'black') : self.__image_path + 'black_pawn.png',
-                         ('pawn', 'white'): self.__image_path + 'white_pawn.png',
-                         ('bishop', 'black'): self.__image_path + 'black_bishop.png',
-                         ('bishop', 'white'): self.__image_path + 'white_bishop.png',
-                         ('knight', 'black'): self.__image_path + 'black_knight.png',
-                         ('knight', 'white'): self.__image_path + 'white_knight.png',
-                         ('rock', 'black'): self.__image_path + 'black_rock.png',
-                         ('rock', 'white'): self.__image_path + 'white_rock.png',
-                         ('king', 'black'): self.__image_path + 'black_king.png',
-                         ('king', 'white'): self.__image_path + 'white_king.png',
-                         ('queen', 'black'): self.__image_path + 'black_queen.png',
-                         ('queen', 'white'): self.__image_path + 'white_queen.png'
+        self.__images = {(PieceType.PAWN, PieceColor.BLACK) : self.__image_path + 'black_pawn.png',
+                         (PieceType.PAWN, PieceColor.WHITE): self.__image_path + 'white_pawn.png',
+                         (PieceType.BISHOP, PieceColor.BLACK): self.__image_path + 'black_bishop.png',
+                         (PieceType.BISHOP, PieceColor.WHITE): self.__image_path + 'white_bishop.png',
+                         (PieceType.KNIGHT, PieceColor.BLACK): self.__image_path + 'black_knight.png',
+                         (PieceType.KNIGHT, PieceColor.WHITE): self.__image_path + 'white_knight.png',
+                         (PieceType.ROCK, PieceColor.BLACK): self.__image_path + 'black_rock.png',
+                         (PieceType.ROCK, PieceColor.WHITE): self.__image_path + 'white_rock.png',
+                         (PieceType.KING, PieceColor.BLACK): self.__image_path + 'black_king.png',
+                         (PieceType.KING, PieceColor.WHITE): self.__image_path + 'white_king.png',
+                         (PieceType.QUEEN, PieceColor.BLACK): self.__image_path + 'black_queen.png',
+                         (PieceType.QUEEN, PieceColor.WHITE): self.__image_path + 'white_queen.png'
                          }
 
         self.__size = {'normal': (30, 50),
@@ -95,54 +98,54 @@ class ImagesColors:
             self.make_transparent()
 
     def set_pieces_drawing(self):
-        self.__images = {('pawn', 'black') : self.__image_path + 'black_pawn_dr.png',
-                         ('pawn', 'white'): self.__image_path + 'white_pawn_dr.png',
-                         ('bishop', 'black'): self.__image_path + 'black_bishop_dr.png',
-                         ('bishop', 'white'): self.__image_path + 'white_bishop_dr.png',
-                         ('knight', 'black'): self.__image_path + 'black_knight_dr.png',
-                         ('knight', 'white'): self.__image_path + 'white_knight_dr.png',
-                         ('rock', 'black'): self.__image_path + 'black_rock_dr.png',
-                         ('rock', 'white'): self.__image_path + 'white_rock_dr.png',
-                         ('king', 'black'): self.__image_path + 'black_king_dr.png',
-                         ('king', 'white'): self.__image_path + 'white_king_dr.png',
-                         ('queen', 'black'): self.__image_path + 'black_queen_dr.png',
-                         ('queen', 'white'): self.__image_path + 'white_queen_dr.png'
+        self.__images = {(PieceType.PAWN, PieceColor.BLACK) : self.__image_path + 'black_pawn_dr.png',
+                         (PieceType.PAWN, PieceColor.WHITE): self.__image_path + 'white_pawn_dr.png',
+                         (PieceType.BISHOP, PieceColor.BLACK): self.__image_path + 'black_bishop_dr.png',
+                         (PieceType.BISHOP, PieceColor.WHITE): self.__image_path + 'white_bishop_dr.png',
+                         (PieceType.KNIGHT, PieceColor.BLACK): self.__image_path + 'black_knight_dr.png',
+                         (PieceType.KNIGHT, PieceColor.WHITE): self.__image_path + 'white_knight_dr.png',
+                         (PieceType.ROCK, PieceColor.BLACK): self.__image_path + 'black_rock_dr.png',
+                         (PieceType.ROCK, PieceColor.WHITE): self.__image_path + 'white_rock_dr.png',
+                         (PieceType.KING, PieceColor.BLACK): self.__image_path + 'black_king_dr.png',
+                         (PieceType.KING, PieceColor.WHITE): self.__image_path + 'white_king_dr.png',
+                         (PieceType.QUEEN, PieceColor.BLACK): self.__image_path + 'black_queen_dr.png',
+                         (PieceType.QUEEN, PieceColor.WHITE): self.__image_path + 'white_queen_dr.png'
                          }
         self.__type = 'drawing'
         self.image_width, self.image_height = self.__size[self.__type]
         self.is_transparent()
 
     def set_pieces_normal(self):
-        self.__images = {('pawn', 'black') : self.__image_path + 'black_pawn.png',
-                         ('pawn', 'white'): self.__image_path + 'white_pawn.png',
-                         ('bishop', 'black'): self.__image_path + 'black_bishop.png',
-                         ('bishop', 'white'): self.__image_path + 'white_bishop.png',
-                         ('knight', 'black'): self.__image_path + 'black_knight.png',
-                         ('knight', 'white'): self.__image_path + 'white_knight.png',
-                         ('rock', 'black'): self.__image_path + 'black_rock.png',
-                         ('rock', 'white'): self.__image_path + 'white_rock.png',
-                         ('king', 'black'): self.__image_path + 'black_king.png',
-                         ('king', 'white'): self.__image_path + 'white_king.png',
-                         ('queen', 'black'): self.__image_path + 'black_queen.png',
-                         ('queen', 'white'): self.__image_path + 'white_queen.png'
+        self.__images = {(PieceType.PAWN, PieceColor.BLACK) : self.__image_path + 'black_pawn.png',
+                         (PieceType.PAWN, PieceColor.WHITE): self.__image_path + 'white_pawn.png',
+                         (PieceType.BISHOP, PieceColor.BLACK): self.__image_path + 'black_bishop.png',
+                         (PieceType.BISHOP, PieceColor.WHITE): self.__image_path + 'white_bishop.png',
+                         (PieceType.KNIGHT, PieceColor.BLACK): self.__image_path + 'black_knight.png',
+                         (PieceType.KNIGHT, PieceColor.WHITE): self.__image_path + 'white_knight.png',
+                         (PieceType.ROCK, PieceColor.BLACK): self.__image_path + 'black_rock.png',
+                         (PieceType.ROCK, PieceColor.WHITE): self.__image_path + 'white_rock.png',
+                         (PieceType.KING, PieceColor.BLACK): self.__image_path + 'black_king.png',
+                         (PieceType.KING, PieceColor.WHITE): self.__image_path + 'white_king.png',
+                         (PieceType.QUEEN, PieceColor.BLACK): self.__image_path + 'black_queen.png',
+                         (PieceType.QUEEN, PieceColor.WHITE): self.__image_path + 'white_queen.png'
                          }
         self.__type = 'normal'
         self.image_width, self.image_height = self.__size[self.__type]
         self.is_transparent()
 
     def set_pieces_minimalist(self):
-        self.__images = {('pawn', 'black'): self.__image_path + 'black_pawn_minimalist.png',
-                         ('pawn', 'white'): self.__image_path + 'white_pawn_minimalist.png',
-                         ('bishop', 'black'): self.__image_path + 'black_bishop_minimalist.png',
-                         ('bishop', 'white'): self.__image_path + 'white_bishop_minimalist.png',
-                         ('knight', 'black'): self.__image_path + 'black_knight_minimalist.png',
-                         ('knight', 'white'): self.__image_path + 'white_knight_minimalist.png',
-                         ('rock', 'black'): self.__image_path + 'black_rock_minimalist.png',
-                         ('rock', 'white'): self.__image_path + 'white_rock_minimalist.png',
-                         ('king', 'black'): self.__image_path + 'black_king_minimalist.png',
-                         ('king', 'white'): self.__image_path + 'white_king_minimalist.png',
-                         ('queen', 'black'): self.__image_path + 'black_queen_minimalist.png',
-                         ('queen', 'white'): self.__image_path + 'white_queen_minimalist.png'
+        self.__images = {(PieceType.PAWN, PieceColor.BLACK) : self.__image_path + 'black_pawn_minimalist.png',
+                         (PieceType.PAWN, PieceColor.WHITE): self.__image_path + 'white_pawn_minimalist.png',
+                         (PieceType.BISHOP, PieceColor.BLACK): self.__image_path + 'black_bishop_minimalist.png',
+                         (PieceType.BISHOP, PieceColor.WHITE): self.__image_path + 'white_bishop_minimalist.png',
+                         (PieceType.KNIGHT, PieceColor.BLACK): self.__image_path + 'black_knight_minimalist.png',
+                         (PieceType.KNIGHT, PieceColor.WHITE): self.__image_path + 'white_knight_minimalist.png',
+                         (PieceType.ROCK, PieceColor.BLACK): self.__image_path + 'black_rock_minimalist.png',
+                         (PieceType.ROCK, PieceColor.WHITE): self.__image_path + 'white_rock_minimalist.png',
+                         (PieceType.KING, PieceColor.BLACK): self.__image_path + 'black_king_minimalist.png',
+                         (PieceType.KING, PieceColor.WHITE): self.__image_path + 'white_king_minimalist.png',
+                         (PieceType.QUEEN, PieceColor.BLACK): self.__image_path + 'black_queen_minimalist.png',
+                         (PieceType.QUEEN, PieceColor.WHITE): self.__image_path + 'white_queen_minimalist.png'
                          }
         self.__type = 'minimalist'
         self.image_width, self.image_height = self.__size[self.__type]

@@ -1,12 +1,15 @@
 from Domain.Pieces.BoardPiece import *
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
+
 
 class Queen(BoardPiece):
-    def __init__(self, color):
+    def __init__(self, color: PieceColor):
         super().__init__()
         self.__color = color
 
     def get_piece_color_and_type(self):
-        return self.__color, 'queen'
+        return self.__color, PieceType.QUEEN
 
     def get_available_moves(self, board, x, y):
         # the board is passed as a parameter
@@ -17,7 +20,7 @@ class Queen(BoardPiece):
         available_moves = []
 
         # bishop moves
-        if self.__color == 'white':
+        if self.__color == PieceColor.WHITE:
 
             # DIAGONALS
             # UP RIGHT
@@ -26,7 +29,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y + i))
 
-                elif board.get_piece(x + i, y + i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x + i, y + i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x + i, y + i))
                     break
 
@@ -38,7 +41,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x - i, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y + i))
 
-                elif board.get_piece(x - i, y + i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x - i, y + i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x - i, y + i))
                     break
 
@@ -50,7 +53,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y - i))
 
-                elif board.get_piece(x + i, y - i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x + i, y - i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x + i, y - i))
                     break
 
@@ -62,7 +65,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x - i, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y - i))
 
-                elif board.get_piece(x - i, y - i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x - i, y - i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x - i, y - i))
                     break
 
@@ -76,7 +79,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x, y + i))
 
-                elif board.get_piece(x, y + i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x, y + i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x, y + i))
                     break
 
@@ -88,7 +91,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x, y - i))
 
-                elif board.get_piece(x, y - i).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x, y - i).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x, y - i))
                     break
 
@@ -100,7 +103,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y))
 
-                elif board.get_piece(x + i, y).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x + i, y).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x + i, y))
                     break
 
@@ -112,15 +115,14 @@ class Queen(BoardPiece):
                 if board.get_piece(x - i, y).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y))
 
-                elif board.get_piece(x - i, y).get_piece_color_and_type()[0] == 'black':
+                elif board.get_piece(x - i, y).get_piece_color_and_type()[0] == PieceColor.BLACK:
                     available_moves.append((x - i, y))
                     break
 
                 else:
                     break
 
-
-        if self.__color == 'black':
+        if self.__color == PieceColor.BLACK:
 
             # BISHOP MOVES
 
@@ -129,7 +131,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y + i))
 
-                elif board.get_piece(x + i, y + i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x + i, y + i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x + i, y + i))
                     break
 
@@ -141,7 +143,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x - i, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y + i))
 
-                elif board.get_piece(x - i, y + i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x - i, y + i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x - i, y + i))
                     break
 
@@ -153,7 +155,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y - i))
 
-                elif board.get_piece(x + i, y - i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x + i, y - i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x + i, y - i))
                     break
 
@@ -164,7 +166,7 @@ class Queen(BoardPiece):
             for i in range(1, 8):
                 if board.get_piece(x - i, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y - i))
-                elif board.get_piece(x - i, y - i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x - i, y - i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x - i, y - i))
                     break
                 else:
@@ -177,7 +179,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x, y + i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x, y + i))
 
-                elif board.get_piece(x, y + i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x, y + i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x, y + i))
                     break
 
@@ -189,7 +191,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x, y - i).get_piece_color_and_type()[0] is None:
                     available_moves.append((x, y - i))
 
-                elif board.get_piece(x, y - i).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x, y - i).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x, y - i))
                     break
 
@@ -201,7 +203,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x + i, y).get_piece_color_and_type()[0] is None:
                     available_moves.append((x + i, y))
 
-                elif board.get_piece(x + i, y).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x + i, y).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x + i, y))
                     break
 
@@ -213,7 +215,7 @@ class Queen(BoardPiece):
                 if board.get_piece(x - i, y).get_piece_color_and_type()[0] is None:
                     available_moves.append((x - i, y))
 
-                elif board.get_piece(x - i, y).get_piece_color_and_type()[0] == 'white':
+                elif board.get_piece(x - i, y).get_piece_color_and_type()[0] == PieceColor.WHITE:
                     available_moves.append((x - i, y))
                     break
 

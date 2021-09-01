@@ -6,6 +6,8 @@ from Domain.Pieces.Rock import Rock
 from Domain.Pieces.Bishop import Bishop
 from Domain.Pieces.EmptyPiece import EmptyPiece
 from functools import partial
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
 
 
 class PromotionTab:
@@ -18,10 +20,6 @@ class PromotionTab:
         self.__height = 70
         self.__width = 70
         self.__images_colors = images_colors
-
-        # self.__new_root.transient(root)
-        # self.__new_root.grab_set()
-        # root.wait_window(self.__new_root)
 
     def replace_x(self):
         self.__new_root.withdraw()
@@ -57,7 +55,7 @@ class PromotionTab:
         return button
 
     def promotion_chosen(self, piece):
-        # a promotion piece was chosen, so we net to set it to the attribute and destroy the Promotion tab
+        # a promotion piece was chosen, so we need to set it to the attribute and destroy the Promotion tab
         self.__promotion_piece = piece
         self.__new_root.quit()
 
@@ -69,20 +67,20 @@ class PromotionTab:
         frame.grid(row=0, column=0)
         frame.grid_propagate(False)
 
-        button_queen = self.create_button_promotion(frame, 'queen', piece_color, bg, active_bg, first_color, second_color)
+        button_queen = self.create_button_promotion(frame, PieceType.QUEEN, piece_color, bg, active_bg, first_color, second_color)
         frame.grid(row=0, column=0)
         button_queen.grid(row=0, column=0, sticky=NW)
         button_queen.config(command=partial(self.promotion_chosen, Queen(piece_color)))
 
-        button_knight = self.create_button_promotion(frame, 'knight', piece_color, bg, active_bg, first_color, second_color)
+        button_knight = self.create_button_promotion(frame, PieceType.KNIGHT, piece_color, bg, active_bg, first_color, second_color)
         button_knight.grid(row=0, column=1, sticky=NW)
         button_knight.config(command = partial(self.promotion_chosen, Knight(piece_color)))
 
-        button_rock = self.create_button_promotion(frame, 'rock', piece_color, bg, active_bg, first_color, second_color)
+        button_rock = self.create_button_promotion(frame, PieceType.ROCK, piece_color, bg, active_bg, first_color, second_color)
         button_rock.grid(row=0, column=2, sticky=NW)
         button_rock.config(command = partial(self.promotion_chosen, Rock(piece_color)))
 
-        button_bishop = self.create_button_promotion(frame, 'bishop', piece_color, bg, active_bg, first_color, second_color)
+        button_bishop = self.create_button_promotion(frame, PieceType.BISHOP, piece_color, bg, active_bg, first_color, second_color)
         button_bishop.grid(row=0, column=3, sticky=NW)
         button_bishop.config(command = partial(self.promotion_chosen, Bishop(piece_color)))
 

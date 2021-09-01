@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from tkinter import *
 from PIL import ImageTk, Image
-
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
 
 class StatusPiece:
     def __init__(self, type, color, pixels):
@@ -34,33 +35,35 @@ class StatusBar(ABC):
         self._pixels = 100
         self._status_size = 20
         self._status_size_overlap = 7
-        self._status_bar = {'pawn': [],
-                                   'bishop': [],
-                                   'knight': [],
-                                   'rock': [],
-                                   'queen': [],
-                                   'king': []
-                                   }
-        self._pieces ={'pawn' : [],
-                        'bishop': [],
-                        'knight': [],
-                        'rock': [],
-                        'queen': [],
-                        'king': []
+        self._status_bar = {PieceType.PAWN: [],
+                            PieceType.BISHOP: [],
+                            PieceType.KNIGHT: [],
+                            PieceType.ROCK: [],
+                            PieceType.QUEEN: [],
+                            PieceType.KING: []
+                            }
+        self._pieces ={ PieceType.PAWN: [],
+                        PieceType.BISHOP: [],
+                        PieceType.KNIGHT: [],
+                        PieceType.ROCK: [],
+                        PieceType.QUEEN: [],
+                        PieceType.KING: []
                         }
         self._photo_references = []
 
     def get_greater_pieces(self, type):
-        if type == 'pawn':
-            return ['bishop', 'knight', 'rock', 'queen', 'king']
-        elif type == 'bishop':
-            return ['knight', 'rock', 'queen', 'king']
-        elif type == 'knight':
-            return ['rock', 'queen', 'king']
-        elif type == 'rock':
-            return ['queen', 'king']
-        elif type == 'queen':
-            return ['king']
+        if type == PieceType.PAWN:
+            return [PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROCK,
+                    PieceType.QUEEN, PieceType.KING]
+        elif type == PieceType.BISHOP:
+            return [PieceType.KNIGHT, PieceType.ROCK,
+                    PieceType.QUEEN, PieceType.KING]
+        elif type == PieceType.KNIGHT:
+            return [PieceType.ROCK, PieceType.QUEEN, PieceType.KING]
+        elif type == PieceType.ROCK:
+            return [PieceType.QUEEN, PieceType.KING]
+        elif type == PieceType.QUEEN:
+            return [PieceType.KING]
 
     def switch_pieces_one_pos(self, type):
         # Because we want the pieces of the same kind to overlap, the amount of pixels
@@ -108,11 +111,11 @@ class WhiteStatusBar(StatusBar):
     def __init__(self, frame, images_colors):
         super(WhiteStatusBar, self).__init__(frame, images_colors)
 
-    def create_status_bar(self, orientation):
+    def create_status_bar(self, white_down_bool):
         self._canvas = Canvas(self._frame, width=641, height=40, highlightthickness=0,
                                bg=self._images_colors.get_color('status'))
         self._canvas.create_text(55, 20, text="Black player", fill="Black", font=('MS Serif', 13))
-        if orientation == 'wd':
+        if white_down_bool:
             self._canvas.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
         else:
             self._canvas.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
@@ -126,8 +129,8 @@ class WhiteStatusBar(StatusBar):
                 self._canvas.create_image(element.get_pixels(), 20,
                                             image=self._photo_references[len(self._photo_references) - 1])
 
-    def reverse(self, orientation):
-        if orientation == "wd":
+    def reverse(self, white_down_bool):
+        if white_down_bool:
             self._canvas.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
         else:
             self._canvas.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
@@ -137,11 +140,11 @@ class BlackStatusBar(StatusBar):
     def __init__(self, frame, images_colors):
         super(BlackStatusBar, self).__init__(frame, images_colors)
 
-    def create_status_bar(self, orientation):
+    def create_status_bar(self, white_down_bool):
         self._canvas = Canvas(self._frame, width=641, height=40, highlightthickness=0,
                                bg=self._images_colors.get_color('status'))
         self._canvas.create_text(55, 20, text="White player", fill="White", font=('MS Serif', 13))
-        if orientation == 'wd':
+        if white_down_bool:
             self._canvas.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
         else:
             self._canvas.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)
@@ -155,8 +158,8 @@ class BlackStatusBar(StatusBar):
                 self._canvas.create_image(element.get_pixels(), 20,
                                             image=self._photo_references[len(self._photo_references) - 1])
 
-    def reverse(self, orientation):
-        if orientation == "wd":
+    def reverse(self, white_down_bool):
+        if white_down_bool:
             self._canvas.grid(row=34, column=1, padx=(50, 0), pady=10, sticky=S)
         else:
             self._canvas.grid(row=1, column=1, padx=(50, 0), pady=10, sticky=S)

@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class PieceType(Enum):
 
     PAWN = auto()
@@ -10,4 +11,6 @@ class PieceType(Enum):
     KING = auto()
     EMPTY_SQUARE = auto()
     NOT_ON_BOARD = auto()
+
+
 

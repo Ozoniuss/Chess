@@ -7,6 +7,8 @@ from GUI.PromotionTab import PromotionTab
 from GUI.ImagesColors import ImagesColors
 from Event.Events import *
 from GUI.Status_bar import WhiteStatusBar, BlackStatusBar
+from Domain.PieceTypes.PieceType import PieceType
+from Domain.PieceColors.PieceColor import PieceColor
 
 
 class GUI:
@@ -23,21 +25,6 @@ class GUI:
         self.__root.grid_columnconfigure(0, weight=1)
         self.__root.grid_rowconfigure(0, weight=1)
 
-        self.__status_bar_black = {'pawn': [],
-                                   'bishop': [],
-                                   'knight': [],
-                                   'rock': [],
-                                   'queen': [],
-                                   'king': []
-                                   }
-        self.__status_bar_white = {'pawn': [],
-                                   'bishop': [],
-                                   'knight': [],
-                                   'rock': [],
-                                   'queen': [],
-                                   'king': []
-                                   }
-
         self.__square_size = 80
 
         # dict keys: tuples of form (x,y), where x and y are the positions on the board
@@ -50,12 +37,12 @@ class GUI:
         # the current piece we are working with
         self.__piece_drawing = None
         self.__piece_coordinates = None
-        self.__current_player = 'white'
+        self.__current_player = PieceColor.WHITE
         self.__previous_click = None
         self.__canvas = None
         self.__photo_references = []
 
-        self.__board_orientation = "wd"  # white down
+        self.__white_down = True  # white down
 
         self.__dark_mode = "On"
 
@@ -67,6 +54,8 @@ class GUI:
         self.__white_status_bar = WhiteStatusBar(self.__frame, self.__images_colors)
         self.__black_status_bar = BlackStatusBar(self.__frame, self.__images_colors)
 
+
+
     @property
     def table(self):
         return self.__table
@@ -76,11 +65,7 @@ class GUI:
         self.__square_dict = {}
         self.__piece_drawing = None
         self.__changes = []
-        self.__current_player = 'white'
-
-        for type in self.__status_bar_black:
-            self.__status_bar_black[type] = []
-            self.__status_bar_white[type] = []
+        self.__current_player = PieceColor.WHITE
 
         self.__white_status_bar = WhiteStatusBar(self.__frame, self.__images_colors)
         self.__black_status_bar = BlackStatusBar(self.__frame, self.__images_colors)
@@ -156,7 +141,7 @@ class GUI:
 
     def add_text_to_board(self, cnv_x, cnv_y):
         if cnv_x == 1:
-            if self.__board_orientation == 'wd':
+            if self.__white_down:
                 self.__canvas.create_text((cnv_x - 1) * self.__square_size + 10,
                                           (9 - cnv_y - 1) * self.__square_size + 10,
                                           text=str(cnv_y))
@@ -165,7 +150,7 @@ class GUI:
                                           (9 - cnv_y - 1) * self.__square_size + 10,
                                           text=str(9 - cnv_y))
         if cnv_y == 1:
-            if self.__board_orientation == 'wd':
+            if self.__white_down:
                 self.__canvas.create_text(cnv_x * self.__square_size - 10, (9 - cnv_y) * self.__square_size - 10,
                                           text=chr(ord('A') + cnv_x - 1))
             else:
@@ -191,8 +176,8 @@ class GUI:
             self.__square_dict[(x, y)].set_photo_image(piece_drawing)
 
     def create_status_bars(self):
-        self.__white_status_bar.create_status_bar(self.__board_orientation)
-        self.__black_status_bar.create_status_bar(self.__board_orientation)
+        self.__white_status_bar.create_status_bar(self.__white_down)
+        self.__black_status_bar.create_status_bar(self.__white_down)
 
     def create_canvas(self):
         self.draw_board()
@@ -375,10 +360,10 @@ class GUI:
         self.__canvas.coords(self.__piece_drawing, (cnv_x - 1) * 80 + 40, (9 - cnv_y - 1) * 80 + 40)
 
     def change_player(self):
-        if self.__current_player == 'white':
-            self.__current_player = 'black'
+        if self.__current_player == PieceColor.WHITE:
+            self.__current_player = PieceColor.BLACK
         else:
-            self.__current_player = 'white'
+            self.__current_player = PieceColor.WHITE
 
     def motion(self, event):
         x = event.x // 80 + 1
@@ -397,16 +382,16 @@ class GUI:
         piece = self.__table.get_piece(initial_x, initial_y)
         selected_piece = None
         # pawn reaches the end and can promote
-        if piece.get_piece_color_and_type() == ('white', 'pawn') and initial_y == 7 and new_y == 8:
-            self.__promotion_tab.promotion_tab('white', self.__images_colors.get_color('frame'),
+        if piece.get_piece_color_and_type() == (PieceColor.WHITE, PieceType.PAWN) and initial_y == 7 and new_y == 8:
+            self.__promotion_tab.promotion_tab(PieceColor.WHITE, self.__images_colors.get_color('frame'),
                                                self.__images_colors.get_color('frame'),
                                                self.__images_colors.get_color('button enter'),
                                                self.__images_colors.get_color('button leave'),
                                                self.__images_colors.get_color('frame'))
 
         # same for black pawn
-        if piece.get_piece_color_and_type() == ('black', 'pawn') and initial_y == 2 and new_y == 1:
-            self.__promotion_tab.promotion_tab('black', self.__images_colors.get_color('frame'),
+        if piece.get_piece_color_and_type() == (PieceColor.BLACK, PieceType.PAWN) and initial_y == 2 and new_y == 1:
+            self.__promotion_tab.promotion_tab(PieceColor.BLACK, self.__images_colors.get_color('frame'),
                                                self.__images_colors.get_color('frame'),
                                                self.__images_colors.get_color('button enter'),
                                                self.__images_colors.get_color('button leave'),
@@ -422,7 +407,7 @@ class GUI:
             piece = self.__table.get_piece(x, y)
             color, type = piece.get_piece_color_and_type()
 
-            if self.__current_player == 'black':
+            if self.__current_player == PieceColor.BLACK:
                 self.__white_status_bar.get_piece_out(color, type)
             else:
                 self.__black_status_bar.get_piece_out(color, type)
@@ -432,19 +417,19 @@ class GUI:
     def choose_coordinates(self, x, y):
         a = x
         b = y
-        if self.__board_orientation != 'wd':
+        if not self.__white_down:
             a = 9 - x
             b = 9 - y
         return a, b
 
     def reverse_board(self):
         self.undo_click()
-        if self.__board_orientation == "wd":
-            self.__board_orientation = "bd"
+        if self.__white_down:
+            self.__white_down = False
         else:
-            self.__board_orientation = "wd"
-        self.__white_status_bar.reverse(self.__board_orientation)
-        self.__black_status_bar.reverse(self.__board_orientation)
+            self.__white_down = True
+        self.__white_status_bar.reverse(self.__white_down)
+        self.__black_status_bar.reverse(self.__white_down)
 
         self.create_canvas()
 
