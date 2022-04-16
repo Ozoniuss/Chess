@@ -1,2 +1,2 @@
 # Chess
-This is a simple chess app on written in Python.
+This is a simple chess app written in Python.
